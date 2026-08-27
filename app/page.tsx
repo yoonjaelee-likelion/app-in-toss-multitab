@@ -12,6 +12,11 @@ const EXAMPLES = [
   "지금 전세 재계약이 나을까, 무리해서 사는 게 나을까",
   "주 4일제가 실제로 생산성에 도움이 될까",
   "30대 중반에 완전히 다른 직무로 옮기는 건 무모한가",
+  "아이 스마트폰은 몇 살부터 쥐여줘도 될까",
+  "지금 이 사업 아이디어, 그만두는 게 맞을까 더 밀어붙이는 게 맞을까",
+  "연봉을 낮춰서라도 워라밸 좋은 회사로 옮겨야 할까",
+  "이 정도 증상이면 병원부터 가야 할까, 며칠 지켜봐도 될까",
+  "지금 시장에서 예금이 나을까, 투자로 옮기는 게 나을까",
 ];
 
 const WIDE = "(min-width: 1024px)";
@@ -158,6 +163,7 @@ export default function Page() {
             <Thread
               turns={t.turns}
               compare={compare}
+              wide={wide}
               active={activeTab}
               onRetry={t.retry}
             />

@@ -7,11 +7,14 @@ import { MODEL_BY_ID } from "@/lib/models";
 export function Thread({
   turns,
   compare,
+  wide,
   active,
   onRetry,
 }: {
   turns: Turn[];
   compare: boolean;
+  /** 좁은 화면에서는 탭 전환 대신 단체 대화방처럼 답을 전부 쌓아 보여준다 */
+  wide: boolean;
   active: string;
   onRetry: (gid: string, slot: string) => void;
 }) {
@@ -24,8 +27,10 @@ export function Thread({
           <Synthesis key={turn.id} group={turn} onRetry={onRetry} />
         ) : compare ? (
           <GroupColumns key={turn.id} group={turn} onRetry={onRetry} />
-        ) : (
+        ) : wide ? (
           <GroupSingle key={turn.id} group={turn} active={active} onRetry={onRetry} />
+        ) : (
+          <GroupChat key={turn.id} group={turn} onRetry={onRetry} />
         ),
       )}
     </>
@@ -138,6 +143,50 @@ function GroupSingle({
             </>
           )}
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── 좁은 화면 — 단체 대화방처럼 답을 쌓아서 ──────────────────── */
+
+function GroupChat({
+  group,
+  onRetry,
+}: {
+  group: GroupTurn;
+  onRetry: (gid: string, slot: string) => void;
+}) {
+  return (
+    <section className="fade-up border-b border-line">
+      {group.gkind === "debate" && <RoundLabel round={group.round} blind={false} />}
+      {group.gkind === "ask" && group.blind && <RoundLabel round={0} blind />}
+      <div className="px-4 sm:px-5 py-3.5 space-y-4">
+        {group.order.map((slot) => {
+          const m = MODEL_BY_ID[slot];
+          const r = group.replies[slot];
+          if (!m || !r) return null;
+          return (
+            <div key={slot} className="flex items-start gap-2.5">
+              <span
+                className="shrink-0 mt-[1px] w-[26px] h-[26px] rounded-full grid place-items-center text-[11px] font-bold text-white"
+                style={{ background: m.color }}
+                aria-hidden
+              >
+                {m.short.slice(0, 1)}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[12.5px] font-semibold text-t1">{m.short}</span>
+                  <Meta reply={r} />
+                </div>
+                <div className="rounded-[14px] rounded-tl-[4px] bg-black/[.035] px-3 py-2.5">
+                  <ReplyBody reply={r} color={m.color} onRetry={() => onRetry(group.id, slot)} />
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
