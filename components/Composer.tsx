@@ -55,7 +55,7 @@ export function Composer({
   return (
     <div
       ref={wrap}
-      className="relative bg-surface border border-line rounded-[12px] shadow-[0_1px_2px_rgba(22,24,29,.05),0_8px_20px_-14px_rgba(22,24,29,.22)] focus-within:border-t3/60 transition-colors"
+      className="relative glass glass-lit rounded-[15px] focus-within:border-white/20 transition-colors"
     >
       <textarea
         ref={ta}
@@ -86,7 +86,7 @@ export function Composer({
           type="button"
           onClick={() => setMenu((v) => !v)}
           aria-expanded={menu}
-          className="h-[28px] pl-2 pr-1.5 rounded-[7px] flex items-center gap-1.5 text-[12.5px] font-medium text-t2 hover:text-t1 hover:bg-black/[.045] transition-colors"
+          className="h-[28px] pl-2 pr-1.5 rounded-[8px] flex items-center gap-1.5 text-[12.5px] font-medium text-t2 hover:text-t1 hover:bg-white/[.07] transition-colors"
         >
           {pick !== "all" && (
             <span
@@ -105,8 +105,8 @@ export function Composer({
           onClick={() => onBlind(!blind)}
           aria-pressed={blind}
           title="다른 탭의 답을 가린 채로 각자 답하게 합니다"
-          className={`h-[28px] px-2.5 rounded-[7px] text-[12.5px] font-medium transition-colors ${
-            blind ? "bg-t1 text-white" : "text-t2 hover:text-t1 hover:bg-black/[.045]"
+          className={`h-[28px] px-2.5 rounded-[8px] text-[12.5px] font-medium transition-colors ${
+            blind ? "grad-bg text-white" : "text-t2 hover:text-t1 hover:bg-white/[.07]"
           }`}
         >
           독립 답변
@@ -118,7 +118,7 @@ export function Composer({
           <button
             type="button"
             onClick={onStop}
-            className="h-[30px] px-3 rounded-[7px] border border-line text-[12.5px] font-medium text-t1 hover:bg-black/[.04] transition-colors"
+            className="h-[31px] px-3 rounded-[9px] glass-2 text-[12.5px] font-medium text-t1 hover:bg-white/[.09] transition-colors"
           >
             중단
           </button>
@@ -127,7 +127,7 @@ export function Composer({
             type="button"
             onClick={send}
             disabled={!can}
-            className="h-[30px] pl-3 pr-2.5 rounded-[7px] bg-t1 text-white text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-t1/88 disabled:bg-t4 disabled:cursor-not-allowed transition-colors"
+            className="h-[31px] pl-3 pr-2.5 rounded-[9px] grad-bg text-white text-[12.5px] font-semibold flex items-center gap-1.5 hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
           >
             보내기
             <span className="text-[10.5px] font-normal opacity-65">⏎</span>
@@ -136,19 +136,19 @@ export function Composer({
       </div>
 
       {menu && (
-        <div className="absolute left-2 bottom-full mb-1.5 z-40 w-[236px] fade-up">
-          <div className="bg-surface border border-line rounded-[11px] shadow-[0_12px_28px_-12px_rgba(22,24,29,.28)] p-1.5">
+        <div className="absolute left-2 bottom-full mb-1.5 z-40 w-[236px] rise">
+          <div className="glass glass-lit rounded-[14px] p-1.5">
             <button
               type="button"
               onClick={() => {
                 setTarget("all");
                 setMenu(false);
               }}
-              className="w-full text-left px-2.5 py-2 rounded-[7px] text-[13px] font-medium text-t1 hover:bg-black/[.045] transition-colors"
+              className="w-full text-left px-2.5 py-2 rounded-[9px] text-[13px] font-medium text-t1 hover:bg-white/[.07] transition-colors"
             >
               열린 탭 전부 ({tabs.length}개)
             </button>
-            <div className="my-1 h-px bg-line-2" />
+            <div className="my-1 h-px bg-white/[.07]" />
             {tabs.map((id) => {
               const m = MODEL_BY_ID[id];
               if (!m) return null;
@@ -160,7 +160,7 @@ export function Composer({
                     setTarget(id);
                     setMenu(false);
                   }}
-                  className="w-full flex items-center gap-2 px-2.5 py-2 rounded-[7px] hover:bg-black/[.045] text-left transition-colors"
+                  className="w-full flex items-center gap-2 px-2.5 py-2 rounded-[9px] hover:bg-white/[.07] text-left transition-colors"
                 >
                   <span
                     className="w-[6px] h-[6px] rounded-full shrink-0"

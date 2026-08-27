@@ -81,7 +81,7 @@ async function runOne(
     } else {
       const result = streamText({
         model: resolve(def),
-        system: systemFor(slot, body.mode),
+        system: systemFor(slot, body.mode, body.stance),
         prompt: promptFor(body, slot),
         temperature: body.mode === "synthesis" ? 0.3 : 0.75,
         abortSignal: signal,

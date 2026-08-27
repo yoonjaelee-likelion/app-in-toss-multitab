@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { MAX_TABS, MODELS, MODEL_BY_ID } from "@/lib/models";
 
 /**
- * 탭 스트립. 브라우저 창 구조를 그대로 가져왔다 —
- * 활성 탭만 아래 흰 표면과 이어 붙고, 응답 중인 탭 밑으로는 로딩 선이 지나간다.
+ * 열려 있는 AI 목록. 유리 알약으로 놓고, 활성 탭만 빛이 걸린다.
+ * 응답 중인 탭 밑으로는 그 모델 색의 선이 지나간다.
  */
 export function TabStrip({
   tabs,
@@ -18,7 +18,7 @@ export function TabStrip({
 }: {
   tabs: string[];
   active: string;
-  /** 비교 보기 — 모든 탭이 한 덩어리로 붙는다 */
+  /** 비교 보기 — 전부 활성으로 본다 */
   merged: boolean;
   loading: Set<string>;
   onSelect: (id: string) => void;
@@ -45,11 +45,11 @@ export function TabStrip({
   }, [menu]);
 
   return (
-    <div ref={wrap} className="relative bg-chrome border-b border-line">
+    <div ref={wrap} className="relative shrink-0">
       <div
-        className="flex items-end gap-[2px] px-2 pt-2 overflow-x-auto no-bar"
+        className="flex items-center gap-1.5 px-3 sm:px-5 pb-2.5 overflow-x-auto no-bar"
         role="tablist"
-        aria-label="열린 AI 탭"
+        aria-label="열린 AI"
       >
         {tabs.map((id) => {
           const m = MODEL_BY_ID[id];
@@ -59,24 +59,27 @@ export function TabStrip({
           return (
             <div
               key={id}
-              className={`relative shrink-0 group flex items-center h-[36px] rounded-t-[9px] transition-colors ${
-                on ? "tab-active tab-seam" : "hover:bg-black/[.045]"
+              className={`relative shrink-0 group flex items-center h-[32px] rounded-[10px] overflow-hidden transition-colors ${
+                on ? "glass" : "glass-2 opacity-70 hover:opacity-100"
               }`}
-              style={{ maxWidth: 190 }}
+              style={{ maxWidth: 180, borderColor: on ? `${m.color}44` : undefined }}
             >
               <button
                 type="button"
                 role="tab"
                 aria-selected={on}
                 onClick={() => onSelect(id)}
-                className="flex items-center gap-2 h-full pl-3 pr-1.5 min-w-0"
+                className="flex items-center gap-2 h-full pl-2.5 pr-1.5 min-w-0"
               >
                 <span
                   className="w-[7px] h-[7px] rounded-full shrink-0"
-                  style={{ background: m.color, opacity: on ? 1 : 0.6 }}
+                  style={{
+                    background: m.color,
+                    boxShadow: on ? `0 0 8px ${m.color}` : undefined,
+                  }}
                 />
                 <span
-                  className={`text-[13px] truncate ${
+                  className={`text-[12.5px] truncate ${
                     on ? "text-t1 font-semibold" : "text-t2 font-medium"
                   }`}
                 >
@@ -87,8 +90,8 @@ export function TabStrip({
               <button
                 type="button"
                 onClick={() => onClose(id)}
-                aria-label={`${m.name} 탭 닫기`}
-                className={`shrink-0 mr-1.5 w-[19px] h-[19px] rounded-[5px] grid place-items-center text-t3 hover:text-t1 hover:bg-black/[.07] transition-all ${
+                aria-label={`${m.name} 닫기`}
+                className={`shrink-0 mr-1.5 w-[18px] h-[18px] rounded-[5px] grid place-items-center text-t3 hover:text-t1 hover:bg-white/10 transition-all ${
                   on ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus:opacity-100"
                 }`}
               >
@@ -104,7 +107,7 @@ export function TabStrip({
 
               {busy && (
                 <span
-                  className="tab-load absolute inset-x-0 bottom-0 h-[2px] overflow-hidden rounded-full"
+                  className="tab-load absolute inset-x-0 bottom-0 h-[2px] overflow-hidden"
                   style={{ color: m.color }}
                   aria-hidden
                 />
@@ -117,23 +120,28 @@ export function TabStrip({
           type="button"
           onClick={() => setMenu((v) => !v)}
           disabled={full}
-          aria-label="AI 탭 추가"
+          aria-label="AI 추가"
           aria-expanded={menu}
-          className="shrink-0 mb-[3px] ml-0.5 w-[28px] h-[28px] rounded-[7px] grid place-items-center text-t2 hover:text-t1 hover:bg-black/[.06] disabled:opacity-35 disabled:hover:bg-transparent transition-colors"
+          className="shrink-0 w-[30px] h-[30px] rounded-[9px] grid place-items-center glass-2 text-t2 hover:text-t1 hover:bg-white/[.07] disabled:opacity-30 transition-colors"
         >
           <svg width="13" height="13" viewBox="0 0 14 14" aria-hidden>
-            <path d="M7 1.5v11M1.5 7h11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            <path
+              d="M7 1.5v11M1.5 7h11"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
           </svg>
         </button>
 
-        <span className="shrink-0 w-2" />
+        <span className="shrink-0 w-1" />
       </div>
 
       {menu && (
-        <div className="absolute left-2 top-full mt-1.5 z-40 w-[288px] fade-up">
-          <div className="bg-surface border border-line rounded-[11px] shadow-[0_12px_28px_-12px_rgba(22,24,29,.28),0_2px_6px_-2px_rgba(22,24,29,.1)] p-1.5">
+        <div className="absolute left-3 sm:left-5 top-full z-40 w-[290px] rise">
+          <div className="glass glass-lit rounded-[14px] p-1.5">
             <p className="px-2.5 py-1.5 text-[11.5px] text-t3">
-              탭 추가 · {tabs.length}/{MAX_TABS} 열림
+              AI 추가 · {tabs.length}/{MAX_TABS} 열림
             </p>
             {rest.length === 0 ? (
               <p className="px-2.5 py-2.5 text-[13px] text-t2">모든 AI가 이미 열려 있습니다.</p>
@@ -146,7 +154,7 @@ export function TabStrip({
                     onOpen(m.id);
                     setMenu(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-[7px] hover:bg-black/[.045] text-left transition-colors"
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-[9px] hover:bg-white/[.07] text-left transition-colors"
                 >
                   <span
                     className="w-[7px] h-[7px] rounded-full shrink-0"

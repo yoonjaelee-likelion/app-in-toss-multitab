@@ -41,8 +41,8 @@ export function Thread({
 
 function Question({ text }: { text: string }) {
   return (
-    <div className="fade-up px-5 sm:px-7 py-5 sm:py-6 border-b border-line bg-chrome/45">
-      <p className="text-[11.5px] font-medium text-t3 mb-1.5">질문</p>
+    <div className="rise px-5 sm:px-7 py-5 sm:py-6 border-b border-line-2 bg-white/[.022]">
+      <p className="text-[11px] font-semibold tracking-[0.14em] text-t3 uppercase mb-2">질문</p>
       <p className="text-[17px] sm:text-[18.5px] leading-[1.6] font-semibold text-t1 tracking-[-0.02em] max-w-[62ch]">
         {text}
       </p>
@@ -61,7 +61,7 @@ function GroupColumns({
 }) {
   const cols = group.order.length;
   return (
-    <section className="fade-up border-b border-line">
+    <section className="rise border-b border-line-2">
       {group.gkind === "debate" && <RoundLabel round={group.round} blind={false} />}
       {group.gkind === "ask" && group.blind && <RoundLabel round={0} blind />}
 
@@ -75,7 +75,7 @@ function GroupColumns({
           if (!m || !r) return null;
           return (
             <div key={slot} className={`min-w-0 ${i > 0 ? "border-l border-line-2" : ""}`}>
-              <div className="sticky top-0 z-10 bg-surface/95 backdrop-blur-[2px] px-4 sm:px-5 pt-3 pb-2">
+              <div className="sticky top-0 z-10 bg-void/80 backdrop-blur-[10px] px-4 sm:px-5 pt-3 pb-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span
                     className="w-[7px] h-[7px] rounded-full shrink-0"
@@ -84,7 +84,7 @@ function GroupColumns({
                   <span className="text-[12.5px] font-semibold text-t1 truncate">{m.short}</span>
                   <Meta reply={r} />
                 </div>
-                <div className="mt-2 h-[2px] rounded-full" style={{ background: `${m.color}2E` }}>
+                <div className="mt-2 h-[2px] rounded-full" style={{ background: `${m.color}33` }}>
                   <div
                     className="h-full rounded-full transition-[width] duration-300"
                     style={{
@@ -120,7 +120,7 @@ function GroupSingle({
   const r = group.replies[active];
 
   return (
-    <section className="fade-up border-b border-line">
+    <section className="rise border-b border-line-2">
       {group.gkind === "debate" && <RoundLabel round={group.round} blind={false} />}
       {group.gkind === "ask" && group.blind && <RoundLabel round={0} blind />}
       <div className="px-5 sm:px-7 py-5">
@@ -158,7 +158,7 @@ function GroupChat({
   onRetry: (gid: string, slot: string) => void;
 }) {
   return (
-    <section className="fade-up border-b border-line">
+    <section className="rise border-b border-line-2">
       {group.gkind === "debate" && <RoundLabel round={group.round} blind={false} />}
       {group.gkind === "ask" && group.blind && <RoundLabel round={0} blind />}
       <div className="px-4 sm:px-5 py-3.5 space-y-4">
@@ -180,7 +180,7 @@ function GroupChat({
                   <span className="text-[12.5px] font-semibold text-t1">{m.short}</span>
                   <Meta reply={r} />
                 </div>
-                <div className="rounded-[14px] rounded-tl-[4px] bg-black/[.035] px-3 py-2.5">
+                <div className="glass-2 rounded-[15px] rounded-tl-[5px] px-3.5 py-2.5">
                   <ReplyBody reply={r} color={m.color} onRetry={() => onRetry(group.id, slot)} />
                 </div>
               </div>
@@ -205,15 +205,30 @@ function Synthesis({
   const r = group.replies[slot];
   const m = MODEL_BY_ID[slot];
   if (!r || !m) return null;
-  const { agree, split, answer } = splitSynthesis(r.text);
+  const { agree, split, answer, fatal, bar, call } = splitSynthesis(r.text);
   const waiting = (r.status === "streaming" || r.status === "pending") && !r.text;
 
+  // 레드팀은 같은 자리에 다른 라벨을 쓴다 — 값이 들어온 쪽을 그린다
+  const red = Boolean(fatal || bar || call);
+  const rows = red
+    ? [
+        { label: "치명상", text: fatal, tone: "#FF6B6B" },
+        { label: "합격선", text: bar, tone: "#FFB454" },
+      ]
+    : [
+        { label: "합의", text: agree, tone: "#3DDC97" },
+        { label: "갈림", text: split, tone: "#7EA6FF" },
+      ];
+  const verdict = red ? call : answer;
+
   return (
-    <section className="fade-up border-b border-line bg-chrome/45">
+    <section className="rise border-b border-line-2 bg-white/[.022]">
       <div className="px-5 sm:px-7 py-6">
         <div className="max-w-[72ch]">
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-[11.5px] font-semibold text-t1">종합</span>
+            <span className="text-[11px] font-semibold tracking-[0.14em] text-t3 uppercase">
+              {red ? "사망 진단서" : "종합"}
+            </span>
             <span className="text-[11.5px] text-t3">{m.short}가 정리</span>
             {waiting && <Dots />}
           </div>
@@ -222,17 +237,24 @@ function Synthesis({
             <ErrorLine message={r.error} onRetry={() => onRetry(group.id, slot)} />
           ) : (
             <div className="space-y-3.5">
-              {agree && <Line label="합의" text={agree} />}
-              {split && <Line label="갈림" text={split} />}
-              {answer && (
-                <div className="pt-2 mt-1 border-t border-line">
-                  <p className="text-[11.5px] font-medium text-t3 mb-1.5">결론</p>
+              {rows.map((row) =>
+                row.text ? (
+                  <Line key={row.label} label={row.label} text={row.text} tone={row.tone} />
+                ) : null,
+              )}
+              {verdict && (
+                <div className="pt-3 mt-1 border-t border-line-2">
+                  <p className="text-[11px] font-semibold tracking-[0.14em] text-t3 uppercase mb-2">
+                    {red ? "판정" : "결론"}
+                  </p>
                   <p className="text-[17px] sm:text-[18px] leading-[1.68] font-semibold text-t1 tracking-[-0.018em]">
-                    {answer}
+                    {verdict}
                   </p>
                 </div>
               )}
-              {!agree && !split && !answer && r.text && <Prose text={r.text} color="#4A5059" />}
+              {!rows.some((x) => x.text) && !verdict && r.text && (
+                <Prose text={r.text} color="#A8B0C0" />
+              )}
             </div>
           )}
         </div>
@@ -241,10 +263,15 @@ function Synthesis({
   );
 }
 
-function Line({ label, text }: { label: string; text: string }) {
+function Line({ label, text, tone }: { label: string; text: string; tone: string }) {
   return (
     <div className="flex gap-3">
-      <span className="shrink-0 w-[34px] pt-[3px] text-[11.5px] font-medium text-t3">{label}</span>
+      <span
+        className="shrink-0 inline-flex items-center h-[20px] px-2 mt-[3px] rounded-[6px] text-[11px] font-semibold"
+        style={{ color: tone, background: `${tone}22` }}
+      >
+        {label}
+      </span>
       <p className="prose-ko flex-1">{text}</p>
     </div>
   );
@@ -327,7 +354,7 @@ function ErrorLine({ message, onRetry }: { message?: string; onRetry: () => void
       <button
         type="button"
         onClick={onRetry}
-        className="mt-2 h-[28px] px-2.5 rounded-[6px] border border-line text-[12.5px] font-medium text-t1 hover:bg-black/[.04] transition-colors"
+        className="mt-2 h-[28px] px-2.5 rounded-[8px] glass-2 text-[12.5px] font-medium text-t1 hover:bg-white/[.09] transition-colors"
       >
         이 탭만 다시
       </button>

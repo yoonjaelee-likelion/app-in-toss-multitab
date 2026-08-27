@@ -8,11 +8,12 @@ import {
   type AskRequest,
   type GroupKind,
   type GroupTurn,
+  type Stance,
   type Turn,
 } from "./chat";
 import { DEFAULT_TABS, MAX_TABS, MODEL_BY_ID } from "./models";
 
-export function useTabs() {
+export function useTabs(stance: Stance = "judge") {
   const [tabs, setTabs] = useState<string[]>(DEFAULT_TABS);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
@@ -78,6 +79,7 @@ export function useTabs() {
         round: opts.round,
         blind: blind && opts.mode === "ask",
         turns: opts.priorTurns,
+        stance,
       };
 
       try {
@@ -159,7 +161,7 @@ export function useTabs() {
         abortRef.current = null;
       }
     },
-    [blind, patchReply],
+    [blind, patchReply, stance],
   );
 
   const ask = useCallback(

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-const LABEL = /^(동의|반박|그래서|합의|갈림|결론)\s*[:：]\s*/;
+const LABEL = /^(동의|반박|그래서|합의|갈림|결론|발견|우려|치명상|합격선|판정)\s*[:：]\s*/;
 
 /**
  * 답변 본문. 무거운 마크다운 대신 문단·목록·라벨 세 가지만 다룬다.
@@ -42,8 +42,8 @@ export function Prose({ text, color }: { text: string; color: string }) {
       out.push(
         <p key={i} className="prose-ko my-2.5">
           <span
-            className="inline-flex items-center h-[18px] px-[7px] mr-1.5 rounded-[4px] text-[11px] font-semibold align-[1px]"
-            style={{ color, background: `${color}14` }}
+            className="inline-flex items-center h-[18px] px-[7px] mr-1.5 rounded-[5px] text-[11px] font-semibold align-[1px]"
+            style={{ color, background: `${color}22` }}
           >
             {m[1]}
           </span>

@@ -1,32 +1,41 @@
 @import "tailwindcss";
 
 /* ────────────────────────────────────────────────────────────
-   멀티탭 — 브라우저 창의 구조를 그대로 쓴다.
-   상단 크롬(회색) 위에 탭이 앉고, 활성 탭이 아래 흰 표면과 이어진다.
-   색은 탭을 구분하는 데만 쓰고, 나머지는 전부 무채색으로 둔다.
+   멀티탭 — AI 법인
+   어두운 유리판 위에 빛이 지나간다. 색은 부서를 구분할 때만 쓰고,
+   나머지는 전부 무채색 유리로 둔다. 움직임은 스프링 하나로 통일.
    ──────────────────────────────────────────────────────────── */
 @theme {
-  --color-chrome: #eef0f2;
-  --color-chrome-2: #e4e7ea;
-  --color-surface: #ffffff;
+  --color-void: #05060a;
+  --color-void-2: #090b12;
 
-  --color-t1: #16181d; /* 본문 */
-  --color-t2: #4a5059; /* 보조 */
-  --color-t3: #878d97; /* 라벨·메타 */
-  --color-t4: #b3b8c0; /* 플레이스홀더 */
+  --color-t1: #f2f4f8; /* 본문 */
+  --color-t2: #a8b0c0; /* 보조 */
+  --color-t3: #6e778a; /* 라벨·메타 */
+  --color-t4: #49515f; /* 플레이스홀더 */
 
-  --color-line: #e3e5e9;
-  --color-line-2: #eeeff2;
+  --color-line: rgba(255, 255, 255, 0.09);
+  --color-line-2: rgba(255, 255, 255, 0.055);
+
+  --color-a1: #5b8cff; /* 파랑 */
+  --color-a2: #a56bff; /* 보라 */
+  --color-a3: #ff6fa5; /* 분홍 */
+
+  --color-ok: #3ddc97;
+  --color-warn: #ffb454;
+  --color-bad: #ff6b6b;
 
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
     "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html,
 body {
   height: 100%;
-  background: var(--color-chrome);
+  background: var(--color-void);
   color: var(--color-t1);
 }
 
@@ -34,12 +43,111 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  letter-spacing: -0.012em;
+  letter-spacing: -0.014em;
+  overscroll-behavior: none;
 }
 
-/* 한국어 본문 — 줄 사이를 넉넉히, 글자 사이는 좁게 */
+/* ── 배경 — 아주 느리게 도는 그라데이션 덩어리 ─────────────── */
+.mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.mesh::before,
+.mesh::after {
+  content: "";
+  position: absolute;
+  width: 62vmax;
+  height: 62vmax;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+  will-change: transform;
+}
+.mesh::before {
+  top: -22vmax;
+  left: -14vmax;
+  background: radial-gradient(circle at 30% 30%, #2c4cc4 0%, transparent 62%);
+  animation: drift-a 26s var(--ease-spring) infinite alternate;
+}
+.mesh::after {
+  bottom: -26vmax;
+  right: -16vmax;
+  background: radial-gradient(circle at 60% 60%, #7a3fbf 0%, transparent 62%);
+  animation: drift-b 32s var(--ease-spring) infinite alternate;
+}
+/* 세 번째 덩어리 — 아래쪽에 청록을 조금 */
+.mesh > i {
+  position: absolute;
+  left: 42%;
+  bottom: -30vmax;
+  width: 54vmax;
+  height: 54vmax;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.32;
+  background: radial-gradient(circle, #0e7f8c 0%, transparent 64%);
+  animation: drift-c 38s var(--ease-spring) infinite alternate;
+}
+
+@keyframes drift-a {
+  to { transform: translate3d(12vmax, 8vmax, 0) scale(1.14); }
+}
+@keyframes drift-b {
+  to { transform: translate3d(-14vmax, -9vmax, 0) scale(1.09); }
+}
+@keyframes drift-c {
+  to { transform: translate3d(-10vmax, -6vmax, 0) scale(1.16); }
+}
+
+/* ── 유리판 ──────────────────────────────────────────────── */
+/* 접두사는 직접 쓰지 않는다 — 둘 다 쓰면 빌드가 표준 속성을 지우고
+   -webkit- 하나만 남겨서, 정작 블러가 걸리지 않는다. */
+.glass {
+  background: rgba(255, 255, 255, 0.045);
+  backdrop-filter: blur(22px) saturate(165%);
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 44px -26px rgba(0, 0, 0, 0.9);
+}
+.glass-2 {
+  background: rgba(255, 255, 255, 0.028);
+  backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.062);
+}
+/* 위쪽 테두리에만 빛이 걸리는 카드 — 떠 있는 느낌을 만든다 */
+.glass-lit {
+  position: relative;
+}
+.glass-lit::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.28), transparent 42%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.grad-text {
+  background: linear-gradient(100deg, #7ea6ff 0%, #b98cff 46%, #ff8fbb 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.grad-bg {
+  background: linear-gradient(120deg, #4e7fff 0%, #9a5cff 52%, #ff6fa5 100%);
+}
+
+/* ── 한국어 본문 ─────────────────────────────────────────── */
 .prose-ko {
-  font-size: 15px;
+  font-size: 14.5px;
   line-height: 1.78;
   color: var(--color-t2);
   letter-spacing: -0.014em;
@@ -51,23 +159,72 @@ body {
   font-weight: 600;
 }
 
-/* 탭 — 활성 탭만 흰 표면과 이어 붙는다 */
-.tab-active {
-  background: var(--color-surface);
-  box-shadow: 0 -1px 0 var(--color-line) inset, -1px 0 0 var(--color-line), 1px 0 0 var(--color-line);
+/* ── 움직임 ──────────────────────────────────────────────── */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: none; }
 }
-/* 탭 아래를 잇는 흰 이음새 — 브라우저 탭이 콘텐츠와 붙어 보이는 이유 */
-.tab-seam::after {
+.rise { animation: rise 420ms var(--ease-spring) both; }
+
+/* 부서가 생길 때 — 살짝 튀어나온다 */
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.82) translateY(8px); filter: blur(6px); }
+  62% { opacity: 1; transform: scale(1.035) translateY(0); filter: blur(0); }
+  100% { transform: scale(1); }
+}
+.pop-in { animation: pop-in 520ms var(--ease-spring) both; }
+
+/* 조직도 선이 그려진다 */
+@keyframes draw {
+  from { stroke-dashoffset: var(--len, 200); }
+  to { stroke-dashoffset: 0; }
+}
+.draw { animation: draw 620ms var(--ease-spring) both; }
+
+/* 작업 중인 카드 위를 지나가는 빛 */
+@keyframes sweep {
+  0% { transform: translateX(-130%); }
+  100% { transform: translateX(330%); }
+}
+.sweep::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 2px;
-  background: var(--color-surface);
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.09) 46%,
+    transparent 72%
+  );
+  animation: sweep 1.9s var(--ease-spring) infinite;
+  pointer-events: none;
 }
 
-/* 로딩 중인 탭 아래를 지나가는 가는 선 — 브라우저 탭 로딩 그대로 */
+/* 회의 중인 두 부서를 잇는 맥박 */
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(165, 107, 255, 0.42); }
+  55% { box-shadow: 0 0 0 7px rgba(165, 107, 255, 0); }
+}
+.pulse-ring { animation: pulse-ring 1.7s var(--ease-spring) infinite; }
+
+@keyframes bar-fill {
+  from { width: 0; }
+}
+.bar-fill { animation: bar-fill 900ms var(--ease-spring) both; }
+
+@keyframes caret {
+  0%, 45% { opacity: 1; }
+  55%, 100% { opacity: 0.14; }
+}
+.caret { animation: caret 1s steps(1, end) infinite; }
+
+@keyframes dot-step {
+  0%, 70%, 100% { opacity: 0.2; transform: translateY(0); }
+  35% { opacity: 0.95; transform: translateY(-2px); }
+}
+.dot-step { animation: dot-step 1.2s ease-in-out infinite; }
+
 @keyframes tab-load {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(320%); }
@@ -81,59 +238,59 @@ body {
   height: 2px;
   background: currentColor;
   border-radius: 2px;
-  animation: tab-load 1.15s cubic-bezier(0.45, 0, 0.35, 1) infinite;
+  animation: tab-load 1.15s var(--ease-spring) infinite;
 }
 
-@keyframes caret {
-  0%, 45% { opacity: 1; }
-  55%, 100% { opacity: 0.15; }
+/* 점수 게이지가 차오른다 */
+@keyframes gauge {
+  from { stroke-dashoffset: var(--circ, 500); }
 }
-.caret { animation: caret 1s steps(1, end) infinite; }
-
-@keyframes dot-step {
-  0%, 70%, 100% { opacity: 0.22; }
-  35% { opacity: 0.9; }
-}
-.dot-step { animation: dot-step 1.2s ease-in-out infinite; }
-
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: none; }
-}
-.fade-up { animation: fade-up 160ms ease-out; }
+.gauge { animation: gauge 1.15s var(--ease-spring) both; }
 
 @media (prefers-reduced-motion: reduce) {
-  .tab-load::before,
+  .mesh::before,
+  .mesh::after,
+  .mesh > i,
+  .rise,
+  .pop-in,
+  .draw,
+  .sweep::after,
+  .pulse-ring,
+  .bar-fill,
   .caret,
   .dot-step,
-  .fade-up {
+  .tab-load::before,
+  .gauge {
     animation: none !important;
   }
   .tab-load::before { width: 100%; opacity: 0.35; }
 }
 
-/* 스크롤바 — 있는 듯 없는 듯 */
+/* ── 스크롤바 ────────────────────────────────────────────── */
 .scroll-y {
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #cfd3d9 transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
 }
 .scroll-y::-webkit-scrollbar { width: 10px; }
 .scroll-y::-webkit-scrollbar-thumb {
-  background: #cfd3d9;
+  background: rgba(255, 255, 255, 0.14);
   border-radius: 99px;
   border: 3px solid transparent;
   background-clip: content-box;
 }
-.scroll-y::-webkit-scrollbar-thumb:hover { background: #b6bcc5; background-clip: content-box; }
+.scroll-y::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.24);
+  background-clip: content-box;
+}
 
 .no-bar { scrollbar-width: none; }
 .no-bar::-webkit-scrollbar { display: none; }
 
 :focus-visible {
-  outline: 2px solid #16181d;
+  outline: 2px solid #7ea6ff;
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
-::selection { background: #16181d14; }
+::selection { background: rgba(126, 166, 255, 0.28); }
