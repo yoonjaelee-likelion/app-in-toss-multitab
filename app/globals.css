@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+/* ────────────────────────────────────────────────────────────
+   멀티탭 — 브라우저 창의 구조를 그대로 쓴다.
+   상단 크롬(회색) 위에 탭이 앉고, 활성 탭이 아래 흰 표면과 이어진다.
+   색은 탭을 구분하는 데만 쓰고, 나머지는 전부 무채색으로 둔다.
+   ──────────────────────────────────────────────────────────── */
+@theme {
+  --color-chrome: #eef0f2;
+  --color-chrome-2: #e4e7ea;
+  --color-surface: #ffffff;
+
+  --color-t1: #16181d; /* 본문 */
+  --color-t2: #4a5059; /* 보조 */
+  --color-t3: #878d97; /* 라벨·메타 */
+  --color-t4: #b3b8c0; /* 플레이스홀더 */
+
+  --color-line: #e3e5e9;
+  --color-line-2: #eeeff2;
+
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--color-chrome);
+  color: var(--color-t1);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.012em;
+}
+
+/* 한국어 본문 — 줄 사이를 넉넉히, 글자 사이는 좁게 */
+.prose-ko {
+  font-size: 15px;
+  line-height: 1.78;
+  color: var(--color-t2);
+  letter-spacing: -0.014em;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.prose-ko strong {
+  color: var(--color-t1);
+  font-weight: 600;
+}
+
+/* 탭 — 활성 탭만 흰 표면과 이어 붙는다 */
+.tab-active {
+  background: var(--color-surface);
+  box-shadow: 0 -1px 0 var(--color-line) inset, -1px 0 0 var(--color-line), 1px 0 0 var(--color-line);
+}
+/* 탭 아래를 잇는 흰 이음새 — 브라우저 탭이 콘텐츠와 붙어 보이는 이유 */
+.tab-seam::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--color-surface);
+}
+
+/* 로딩 중인 탭 아래를 지나가는 가는 선 — 브라우저 탭 로딩 그대로 */
+@keyframes tab-load {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(320%); }
+}
+.tab-load::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 32%;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  animation: tab-load 1.15s cubic-bezier(0.45, 0, 0.35, 1) infinite;
+}
+
+@keyframes caret {
+  0%, 45% { opacity: 1; }
+  55%, 100% { opacity: 0.15; }
+}
+.caret { animation: caret 1s steps(1, end) infinite; }
+
+@keyframes dot-step {
+  0%, 70%, 100% { opacity: 0.22; }
+  35% { opacity: 0.9; }
+}
+.dot-step { animation: dot-step 1.2s ease-in-out infinite; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+.fade-up { animation: fade-up 160ms ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-load::before,
+  .caret,
+  .dot-step,
+  .fade-up {
+    animation: none !important;
+  }
+  .tab-load::before { width: 100%; opacity: 0.35; }
+}
+
+/* 스크롤바 — 있는 듯 없는 듯 */
+.scroll-y {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cfd3d9 transparent;
+}
+.scroll-y::-webkit-scrollbar { width: 10px; }
+.scroll-y::-webkit-scrollbar-thumb {
+  background: #cfd3d9;
+  border-radius: 99px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+.scroll-y::-webkit-scrollbar-thumb:hover { background: #b6bcc5; background-clip: content-box; }
+
+.no-bar { scrollbar-width: none; }
+.no-bar::-webkit-scrollbar { display: none; }
+
+:focus-visible {
+  outline: 2px solid #16181d;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection { background: #16181d14; }
