@@ -1,6 +1,7 @@
 "use client";
 
 import { Prose } from "@/components/Prose";
+import { Thinking } from "@/components/Thinking";
 import type { Dept, Meeting } from "@/lib/inbiz";
 
 /** 부서별 분석 — 카드가 각자 다른 속도로 채워진다 */
@@ -21,15 +22,19 @@ function ReportCard({ dept, index }: { dept: Dept; index: number }) {
 
   return (
     <section
-      className={`rise glass rounded-[16px] overflow-hidden relative ${
+      className={`rise glass rounded-[17px] overflow-hidden relative ${
         working && empty ? "sweep" : ""
       }`}
-      style={{ animationDelay: `${index * 70}ms` }}
+      style={{ animationDelay: `${index * 130}ms` }}
     >
       <header className="flex items-center gap-2.5 px-4 pt-3.5 pb-3">
         <span
-          className="w-[26px] h-[26px] rounded-[9px] grid place-items-center text-[10.5px] font-bold text-white shrink-0"
-          style={{ background: `linear-gradient(135deg, ${dept.color}, ${dept.color}99)` }}
+          className="w-[26px] h-[26px] rounded-[9px] grid place-items-center text-[10px] font-bold shrink-0"
+          style={{
+            background: `${dept.color}26`,
+            border: `1px solid ${dept.color}55`,
+            color: dept.color,
+          }}
         >
           {dept.abbr}
         </span>
@@ -43,24 +48,24 @@ function ReportCard({ dept, index }: { dept: Dept; index: number }) {
             </span>
           )}
         </span>
-        {working ? (
-          <Dots />
-        ) : dept.status === "error" ? (
+        {dept.status === "error" ? (
           <span className="text-[11px] text-bad shrink-0">실패</span>
-        ) : (
+        ) : dept.status === "done" ? (
           <span
             className="shrink-0 w-[5px] h-[5px] rounded-full"
             style={{ background: dept.color }}
             aria-hidden
           />
-        )}
+        ) : null}
       </header>
 
       <div className="px-4 pb-4">
         {dept.status === "error" ? (
           <p className="text-[13px] text-t3">{dept.error ?? "분석에 실패했습니다"}</p>
         ) : empty ? (
-          <p className="text-[13px] text-t4">자료를 보는 중입니다</p>
+          <div className="py-1.5">
+            <Thinking kind="dept" />
+          </div>
         ) : (
           <>
             <Prose text={dept.report} color={dept.color} />
@@ -76,13 +81,7 @@ function ReportCard({ dept, index }: { dept: Dept; index: number }) {
 
 /* ── 부서 회의 ────────────────────────────────────────────── */
 
-export function Meetings({
-  meetings,
-  depts,
-}: {
-  meetings: Meeting[];
-  depts: Dept[];
-}) {
+export function Meetings({ meetings, depts }: { meetings: Meeting[]; depts: Dept[] }) {
   if (!meetings.length) return null;
   const colorOf = (name: string) => depts.find((d) => d.name === name)?.color ?? "#8E96A8";
   const abbrOf = (name: string) => depts.find((d) => d.name === name)?.abbr ?? name.slice(0, 2);
@@ -92,8 +91,8 @@ export function Meetings({
       {meetings.map((m, i) => (
         <div
           key={m.id}
-          className="rise glass-2 rounded-[15px] px-4 py-3.5"
-          style={{ animationDelay: `${i * 90}ms` }}
+          className="rise glass-2 rounded-[16px] px-4 py-3.5"
+          style={{ animationDelay: `${i * 180}ms` }}
         >
           <div className="flex items-center gap-2 mb-2.5">
             <Chip name={m.a} color={colorOf(m.a)} abbr={abbrOf(m.a)} />
@@ -104,13 +103,13 @@ export function Meetings({
           </div>
 
           {m.issue && (
-            <p className="text-[13px] leading-[1.68] text-t2">
+            <p className="text-[13px] leading-[1.7] text-t2">
               <span className="text-[11px] font-semibold text-warn mr-1.5">쟁점</span>
               {m.issue}
             </p>
           )}
           {m.resolved && (
-            <p className="text-[13px] leading-[1.68] text-t2 mt-1.5">
+            <p className="text-[13px] leading-[1.7] text-t2 mt-1.5">
               <span className="text-[11px] font-semibold text-ok mr-1.5">정리</span>
               {m.resolved}
             </p>
@@ -125,26 +124,12 @@ function Chip({ name, color, abbr }: { name: string; color: string; abbr: string
   return (
     <span className="inline-flex items-center gap-1.5 min-w-0">
       <span
-        className="w-[19px] h-[19px] rounded-[6px] grid place-items-center text-[9px] font-bold text-white shrink-0"
-        style={{ background: `linear-gradient(135deg, ${color}, ${color}99)` }}
+        className="w-[19px] h-[19px] rounded-[6px] grid place-items-center text-[8.5px] font-bold shrink-0"
+        style={{ background: `${color}26`, border: `1px solid ${color}55`, color }}
       >
         {abbr}
       </span>
       <span className="text-[12px] font-medium text-t1 truncate">{name}</span>
-    </span>
-  );
-}
-
-function Dots() {
-  return (
-    <span className="inline-flex items-center gap-[3px] shrink-0" aria-label="분석 중">
-      {[0, 1, 2].map((i) => (
-        <i
-          key={i}
-          className="dot-step block w-[3px] h-[3px] rounded-full bg-t3"
-          style={{ animationDelay: `${i * 160}ms` }}
-        />
-      ))}
     </span>
   );
 }

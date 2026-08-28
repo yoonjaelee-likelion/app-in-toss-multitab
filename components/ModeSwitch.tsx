@@ -25,11 +25,14 @@ export function ModeSwitch({
       aria-label="모드"
     >
       <span
-        className="absolute top-[3px] bottom-[3px] rounded-[9px] grad-bg transition-transform duration-[420ms]"
+        className="absolute top-[3px] bottom-[3px] rounded-[9px] transition-transform duration-[620ms]"
         style={{
           width: `calc((100% - 6px) / ${MODES.length})`,
           transform: `translateX(${i * 100}%)`,
-          transitionTimingFunction: "cubic-bezier(.22,1,.36,1)",
+          transitionTimingFunction: "cubic-bezier(.16,1,.3,1)",
+          background: "rgba(255,255,255,.11)",
+          border: "1px solid rgba(255,255,255,.16)",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,.18)",
         }}
         aria-hidden
       />
@@ -41,8 +44,8 @@ export function ModeSwitch({
           aria-selected={mode === m.key}
           title={m.hint}
           onClick={() => onChange(m.key)}
-          className={`relative z-10 h-[28px] px-2.5 sm:px-3 rounded-[9px] text-[12.5px] font-semibold transition-colors ${
-            mode === m.key ? "text-white" : "text-t3 hover:text-t1"
+          className={`relative z-10 h-[28px] px-2.5 sm:px-3 rounded-[9px] text-[12.5px] font-semibold transition-colors duration-500 ${
+            mode === m.key ? "text-t1" : "text-t3 hover:text-t2"
           }`}
           style={{ width: `${100 / MODES.length}%`, minWidth: 62 }}
         >

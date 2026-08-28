@@ -1,35 +1,36 @@
 @import "tailwindcss";
 
 /* ────────────────────────────────────────────────────────────
-   멀티탭 — AI 법인
-   어두운 유리판 위에 빛이 지나간다. 색은 부서를 구분할 때만 쓰고,
-   나머지는 전부 무채색 유리로 둔다. 움직임은 스프링 하나로 통일.
+   멀티탭 — 액체 유리.
+
+   색으로 꾸미지 않는다. 화면은 거의 무채색이고, 색은 부서를 구분할 때만
+   아주 옅게 쓴다. 강조는 그라데이션이 아니라 빛의 각도로 만든다 —
+   위쪽 테두리에 걸리는 반사, 유리 안쪽의 옅은 발광.
+
+   움직임은 느리게. 무엇이 생기고 있는지 눈으로 따라갈 수 있어야 한다.
    ──────────────────────────────────────────────────────────── */
 @theme {
-  --color-void: #05060a;
-  --color-void-2: #090b12;
+  --color-void: #06070b;
 
-  --color-t1: #f2f4f8; /* 본문 */
-  --color-t2: #a8b0c0; /* 보조 */
-  --color-t3: #6e778a; /* 라벨·메타 */
-  --color-t4: #49515f; /* 플레이스홀더 */
+  --color-t1: #f4f6fa; /* 본문 */
+  --color-t2: #aeb6c4; /* 보조 */
+  --color-t3: #737c8c; /* 라벨·메타 */
+  --color-t4: #4c5462; /* 플레이스홀더 */
 
-  --color-line: rgba(255, 255, 255, 0.09);
-  --color-line-2: rgba(255, 255, 255, 0.055);
+  --color-line: rgba(255, 255, 255, 0.1);
+  --color-line-2: rgba(255, 255, 255, 0.058);
 
-  --color-a1: #5b8cff; /* 파랑 */
-  --color-a2: #a56bff; /* 보라 */
-  --color-a3: #ff6fa5; /* 분홍 */
+  --color-accent: #9fc0ff;
 
-  --color-ok: #3ddc97;
-  --color-warn: #ffb454;
-  --color-bad: #ff6b6b;
+  --color-ok: #6fd8a8;
+  --color-warn: #f0b968;
+  --color-bad: #f08a8a;
 
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
     "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-glass: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html,
@@ -47,7 +48,7 @@ body {
   overscroll-behavior: none;
 }
 
-/* ── 배경 — 아주 느리게 도는 그라데이션 덩어리 ─────────────── */
+/* ── 배경 — 거의 안 보일 만큼 옅게, 아주 느리게 ─────────────── */
 .mesh {
   position: fixed;
   inset: 0;
@@ -59,66 +60,69 @@ body {
 .mesh::after {
   content: "";
   position: absolute;
-  width: 62vmax;
-  height: 62vmax;
+  width: 72vmax;
+  height: 72vmax;
   border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.5;
+  filter: blur(120px);
+  opacity: 0.26;
   will-change: transform;
 }
 .mesh::before {
-  top: -22vmax;
-  left: -14vmax;
-  background: radial-gradient(circle at 30% 30%, #2c4cc4 0%, transparent 62%);
-  animation: drift-a 26s var(--ease-spring) infinite alternate;
+  top: -30vmax;
+  left: -20vmax;
+  background: radial-gradient(circle at 30% 30%, #24407e 0%, transparent 64%);
+  animation: drift-a 68s var(--ease-glass) infinite alternate;
 }
 .mesh::after {
-  bottom: -26vmax;
-  right: -16vmax;
-  background: radial-gradient(circle at 60% 60%, #7a3fbf 0%, transparent 62%);
-  animation: drift-b 32s var(--ease-spring) infinite alternate;
+  bottom: -32vmax;
+  right: -22vmax;
+  background: radial-gradient(circle at 60% 60%, #43306b 0%, transparent 66%);
+  animation: drift-b 84s var(--ease-glass) infinite alternate;
 }
-/* 세 번째 덩어리 — 아래쪽에 청록을 조금 */
 .mesh > i {
   position: absolute;
-  left: 42%;
-  bottom: -30vmax;
-  width: 54vmax;
-  height: 54vmax;
+  left: 44%;
+  bottom: -34vmax;
+  width: 60vmax;
+  height: 60vmax;
   border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.32;
-  background: radial-gradient(circle, #0e7f8c 0%, transparent 64%);
-  animation: drift-c 38s var(--ease-spring) infinite alternate;
+  filter: blur(130px);
+  opacity: 0.16;
+  background: radial-gradient(circle, #14555e 0%, transparent 68%);
+  animation: drift-c 96s var(--ease-glass) infinite alternate;
 }
 
 @keyframes drift-a {
-  to { transform: translate3d(12vmax, 8vmax, 0) scale(1.14); }
+  to { transform: translate3d(10vmax, 7vmax, 0) scale(1.12); }
 }
 @keyframes drift-b {
-  to { transform: translate3d(-14vmax, -9vmax, 0) scale(1.09); }
+  to { transform: translate3d(-12vmax, -8vmax, 0) scale(1.08); }
 }
 @keyframes drift-c {
-  to { transform: translate3d(-10vmax, -6vmax, 0) scale(1.16); }
+  to { transform: translate3d(-8vmax, -5vmax, 0) scale(1.14); }
 }
 
-/* ── 유리판 ──────────────────────────────────────────────── */
-/* 접두사는 직접 쓰지 않는다 — 둘 다 쓰면 빌드가 표준 속성을 지우고
-   -webkit- 하나만 남겨서, 정작 블러가 걸리지 않는다. */
+/* ── 유리 ────────────────────────────────────────────────────
+   접두사는 직접 쓰지 않는다 — 표준 속성과 둘 다 쓰면 빌드가
+   표준 쪽을 지우고 -webkit- 하나만 남겨서 블러가 안 걸린다.
+   ──────────────────────────────────────────────────────────── */
 .glass {
-  background: rgba(255, 255, 255, 0.045);
-  backdrop-filter: blur(22px) saturate(165%);
-  border: 1px solid rgba(255, 255, 255, 0.085);
+  background: rgba(255, 255, 255, 0.042);
+  backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.088);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 18px 44px -26px rgba(0, 0, 0, 0.9);
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.16),
+    0 22px 52px -30px rgba(0, 0, 0, 0.92);
 }
 .glass-2 {
-  background: rgba(255, 255, 255, 0.028);
-  backdrop-filter: blur(14px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.062);
+  background: rgba(255, 255, 255, 0.026);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.058);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
 }
-/* 위쪽 테두리에만 빛이 걸리는 카드 — 떠 있는 느낌을 만든다 */
+
+/* 위쪽 모서리에 걸리는 반사 — 유리가 두껍게 보이는 이유 */
 .glass-lit {
   position: relative;
 }
@@ -128,27 +132,60 @@ body {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(140deg, rgba(255, 255, 255, 0.28), transparent 42%);
+  background: linear-gradient(
+    150deg,
+    rgba(255, 255, 255, 0.34) 0%,
+    rgba(255, 255, 255, 0.06) 34%,
+    transparent 62%
+  );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
 }
 
-.grad-text {
-  background: linear-gradient(100deg, #7ea6ff 0%, #b98cff 46%, #ff8fbb 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+/* 눌리는 유리 — 기본 동작 */
+.btn {
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: background 260ms var(--ease-glass), border-color 260ms var(--ease-glass);
 }
-.grad-bg {
-  background: linear-gradient(120deg, #4e7fff 0%, #9a5cff 52%, #ff6fa5 100%);
+.btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.082);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.btn:disabled {
+  opacity: 0.34;
+}
+
+/* 주 동작 — 색이 아니라 밝기로 세운다 */
+.btn-solid {
+  border-radius: 11px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.94) 0%,
+    rgba(233, 238, 248, 0.86) 100%
+  );
+  color: #0b0d13;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 8px 22px -12px rgba(0, 0, 0, 0.8);
+  transition: filter 260ms var(--ease-glass), opacity 260ms var(--ease-glass);
+}
+.btn-solid:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+.btn-solid:disabled {
+  opacity: 0.24;
 }
 
 /* ── 한국어 본문 ─────────────────────────────────────────── */
 .prose-ko {
   font-size: 14.5px;
-  line-height: 1.78;
+  line-height: 1.8;
   color: var(--color-t2);
   letter-spacing: -0.014em;
   word-break: keep-all;
@@ -159,32 +196,33 @@ body {
   font-weight: 600;
 }
 
-/* ── 움직임 ──────────────────────────────────────────────── */
+/* ── 움직임 — 전부 느리게 ─────────────────────────────────── */
 @keyframes rise {
-  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  from { opacity: 0; transform: translateY(14px) scale(0.99); }
   to { opacity: 1; transform: none; }
 }
-.rise { animation: rise 420ms var(--ease-spring) both; }
+.rise { animation: rise 760ms var(--ease-glass) both; }
 
-/* 부서가 생길 때 — 살짝 튀어나온다 */
+/* 부서가 생길 때 — 유리가 굳는 것처럼 */
 @keyframes pop-in {
-  0% { opacity: 0; transform: scale(0.82) translateY(8px); filter: blur(6px); }
-  62% { opacity: 1; transform: scale(1.035) translateY(0); filter: blur(0); }
+  0% { opacity: 0; transform: scale(0.86) translateY(14px); filter: blur(10px); }
+  55% { opacity: 1; filter: blur(0); }
+  75% { transform: scale(1.022) translateY(0); }
   100% { transform: scale(1); }
 }
-.pop-in { animation: pop-in 520ms var(--ease-spring) both; }
+.pop-in { animation: pop-in 1080ms var(--ease-glass) both; }
 
 /* 조직도 선이 그려진다 */
 @keyframes draw {
-  from { stroke-dashoffset: var(--len, 200); }
+  from { stroke-dashoffset: var(--len, 400); }
   to { stroke-dashoffset: 0; }
 }
-.draw { animation: draw 620ms var(--ease-spring) both; }
+.draw { animation: draw 1250ms var(--ease-glass) both; }
 
-/* 작업 중인 카드 위를 지나가는 빛 */
+/* 일하는 중인 카드 위를 아주 천천히 지나가는 빛 */
 @keyframes sweep {
-  0% { transform: translateX(-130%); }
-  100% { transform: translateX(330%); }
+  0% { transform: translateX(-140%); }
+  100% { transform: translateX(340%); }
 }
 .sweep::after {
   content: "";
@@ -193,37 +231,56 @@ body {
   border-radius: inherit;
   background: linear-gradient(
     100deg,
-    transparent 20%,
-    rgba(255, 255, 255, 0.09) 46%,
-    transparent 72%
+    transparent 22%,
+    rgba(255, 255, 255, 0.07) 48%,
+    transparent 74%
   );
-  animation: sweep 1.9s var(--ease-spring) infinite;
+  animation: sweep 3.4s var(--ease-glass) infinite;
   pointer-events: none;
 }
 
-/* 회의 중인 두 부서를 잇는 맥박 */
-@keyframes pulse-ring {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(165, 107, 255, 0.42); }
-  55% { box-shadow: 0 0 0 7px rgba(165, 107, 255, 0); }
+/* 생각하는 중 — 글자 위로 빛이 지나간다 */
+@keyframes shimmer {
+  0% { background-position: 180% 0; }
+  100% { background-position: -180% 0; }
 }
-.pulse-ring { animation: pulse-ring 1.7s var(--ease-spring) infinite; }
+.thinking {
+  background: linear-gradient(
+    90deg,
+    rgba(115, 124, 140, 0.85) 26%,
+    rgba(244, 246, 250, 0.95) 50%,
+    rgba(115, 124, 140, 0.85) 74%
+  );
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 2.8s linear infinite;
+}
+
+/* 회의 중인 부서 */
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(159, 192, 255, 0.3); }
+  55% { box-shadow: 0 0 0 9px rgba(159, 192, 255, 0); }
+}
+.pulse-ring { animation: pulse-ring 3s var(--ease-glass) infinite; }
 
 @keyframes bar-fill {
   from { width: 0; }
 }
-.bar-fill { animation: bar-fill 900ms var(--ease-spring) both; }
+.bar-fill { animation: bar-fill 1450ms var(--ease-glass) both; }
 
 @keyframes caret {
   0%, 45% { opacity: 1; }
-  55%, 100% { opacity: 0.14; }
+  55%, 100% { opacity: 0.12; }
 }
-.caret { animation: caret 1s steps(1, end) infinite; }
+.caret { animation: caret 1.15s steps(1, end) infinite; }
 
 @keyframes dot-step {
-  0%, 70%, 100% { opacity: 0.2; transform: translateY(0); }
-  35% { opacity: 0.95; transform: translateY(-2px); }
+  0%, 72%, 100% { opacity: 0.18; transform: translateY(0); }
+  36% { opacity: 0.92; transform: translateY(-2.5px); }
 }
-.dot-step { animation: dot-step 1.2s ease-in-out infinite; }
+.dot-step { animation: dot-step 1.7s ease-in-out infinite; }
 
 @keyframes tab-load {
   0% { transform: translateX(-100%); }
@@ -234,18 +291,17 @@ body {
   position: absolute;
   left: 0;
   bottom: 0;
-  width: 32%;
+  width: 30%;
   height: 2px;
   background: currentColor;
   border-radius: 2px;
-  animation: tab-load 1.15s var(--ease-spring) infinite;
+  animation: tab-load 2.1s var(--ease-glass) infinite;
 }
 
-/* 점수 게이지가 차오른다 */
 @keyframes gauge {
   from { stroke-dashoffset: var(--circ, 500); }
 }
-.gauge { animation: gauge 1.15s var(--ease-spring) both; }
+.gauge { animation: gauge 1900ms var(--ease-glass) both; }
 
 @media (prefers-reduced-motion: reduce) {
   .mesh::before,
@@ -255,6 +311,7 @@ body {
   .pop-in,
   .draw,
   .sweep::after,
+  .thinking,
   .pulse-ring,
   .bar-fill,
   .caret,
@@ -263,24 +320,25 @@ body {
   .gauge {
     animation: none !important;
   }
-  .tab-load::before { width: 100%; opacity: 0.35; }
+  .thinking { color: var(--color-t2); }
+  .tab-load::before { width: 100%; opacity: 0.32; }
 }
 
 /* ── 스크롤바 ────────────────────────────────────────────── */
 .scroll-y {
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
 }
 .scroll-y::-webkit-scrollbar { width: 10px; }
 .scroll-y::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 99px;
   border: 3px solid transparent;
   background-clip: content-box;
 }
 .scroll-y::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.2);
   background-clip: content-box;
 }
 
@@ -288,9 +346,9 @@ body {
 .no-bar::-webkit-scrollbar { display: none; }
 
 :focus-visible {
-  outline: 2px solid #7ea6ff;
+  outline: 2px solid rgba(159, 192, 255, 0.8);
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: 7px;
 }
 
-::selection { background: rgba(126, 166, 255, 0.28); }
+::selection { background: rgba(159, 192, 255, 0.24); }

@@ -144,8 +144,9 @@ export function useInbiz() {
         });
 
         if (!spawned.length) throw new Error("부서를 편성하지 못했습니다");
-        // 조직도가 다 그려지는 걸 잠깐 보여주고 넘어간다
-        await new Promise((r) => setTimeout(r, 520));
+        // 조직도가 다 그려질 때까지 기다렸다 넘어간다 — 마지막 부서가
+        // 올라오는 애니메이션이 끝나기 전에 다음 단계가 시작되면 안 된다
+        await new Promise((r) => setTimeout(r, 900 + spawned.length * 190));
         if (ac.signal.aborted) return;
 
         /* ── 2. 분석 — 부서가 동시에 일한다 ── */
@@ -187,7 +188,8 @@ export function useInbiz() {
         );
         const finalMeetings = parseMeetings(meetOut.head ?? "", names);
         setMeetings(finalMeetings);
-        await new Promise((r) => setTimeout(r, 420));
+        // 회의 결과를 읽을 시간을 준다
+        await new Promise((r) => setTimeout(r, 1100));
         if (ac.signal.aborted) return;
 
         /* ── 4. 진단 — 한 장으로 ── */

@@ -11,10 +11,9 @@ export function Logo({ size = 15 }: { size?: number }) {
         className="shrink-0"
       >
         <defs>
-          <linearGradient id="lg-front" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#7EA6FF" />
-            <stop offset="52%" stopColor="#B98CFF" />
-            <stop offset="100%" stopColor="#FF8FBB" />
+          <linearGradient id="lg-front" x1="0" y1="0" x2="0.6" y2="1">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="100%" stopColor="#c3ccdd" />
           </linearGradient>
         </defs>
         <path d="M14 6a3 3 0 013-3h6a3 3 0 013 3v14h-12z" fill="#fff" fillOpacity=".16" />
