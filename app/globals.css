@@ -1,16 +1,22 @@
 @import "tailwindcss";
 
 /* ────────────────────────────────────────────────────────────
-   멀티탭 — 액체 유리.
+   멀티탭 — 액체 유리 + 뉴모피즘.
 
-   색으로 꾸미지 않는다. 화면은 거의 무채색이고, 색은 부서를 구분할 때만
+   재료는 두 가지뿐이다.
+   유리(glass) — 떠 있는 것. 패널, 팝오버, 입력창.
+   금속(nm)   — 눌리는 것. 버튼, 명패, 토글.
+
+   색으로 꾸미지 않는다. 화면은 거의 무채색이고, 색은 역할을 구분할 때만
    아주 옅게 쓴다. 강조는 그라데이션이 아니라 빛의 각도로 만든다 —
-   위쪽 테두리에 걸리는 반사, 유리 안쪽의 옅은 발광.
+   위쪽 테두리에 걸리는 반사, 유리 안쪽의 옅은 발광, 금속의 융기.
 
    움직임은 느리게. 무엇이 생기고 있는지 눈으로 따라갈 수 있어야 한다.
    ──────────────────────────────────────────────────────────── */
 @theme {
   --color-void: #06070b;
+  --color-panel: #0a0c12;
+  --color-raise: #0e1119;
 
   --color-t1: #f4f6fa; /* 본문 */
   --color-t2: #aeb6c4; /* 보조 */
@@ -21,6 +27,8 @@
   --color-line-2: rgba(255, 255, 255, 0.058);
 
   --color-accent: #9fc0ff;
+  --color-gold: #e0bd7d; /* 법정 — 놋쇠 */
+  --color-blood: #ff6b6b; /* 19금 — 봉인 */
 
   --color-ok: #6fd8a8;
   --color-warn: #f0b968;
@@ -28,9 +36,11 @@
 
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
     "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-serif: "Nanum Myeongjo", "Apple SD Gothic Neo", Batang, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --ease-glass: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 html,
@@ -92,6 +102,37 @@ body {
   animation: drift-c 96s var(--ease-glass) infinite alternate;
 }
 
+/* 배경색이 모드를 따라간다 — 법정에 들어가면 공기가 따뜻해진다 */
+.mesh::before,
+.mesh::after,
+.mesh > i {
+  transition: background 1400ms var(--ease-glass), opacity 1400ms var(--ease-glass);
+}
+.mesh.court::before {
+  background: radial-gradient(circle at 30% 30%, #6b4a1c 0%, transparent 64%);
+  opacity: 0.3;
+}
+.mesh.court::after {
+  background: radial-gradient(circle at 60% 60%, #3a2340 0%, transparent 66%);
+}
+.mesh.court > i {
+  background: radial-gradient(circle, #5e3a14 0%, transparent 68%);
+  opacity: 0.2;
+}
+
+/* 위로방은 조금 더 부드럽고 따뜻하게 */
+.mesh.comfort::before {
+  background: radial-gradient(circle at 30% 30%, #6b2b4a 0%, transparent 64%);
+  opacity: 0.24;
+}
+.mesh.comfort::after {
+  background: radial-gradient(circle at 60% 60%, #33305e 0%, transparent 66%);
+}
+.mesh.comfort > i {
+  background: radial-gradient(circle, #5a2e46 0%, transparent 68%);
+  opacity: 0.18;
+}
+
 @keyframes drift-a {
   to { transform: translate3d(10vmax, 7vmax, 0) scale(1.12); }
 }
@@ -100,6 +141,17 @@ body {
 }
 @keyframes drift-c {
   to { transform: translate3d(-8vmax, -5vmax, 0) scale(1.14); }
+}
+
+/* 아주 옅은 입자 — 유리 표면이 완벽하게 매끈하면 오히려 가짜로 보인다 */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.15;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.5'/></svg>");
 }
 
 /* ── 유리 ────────────────────────────────────────────────────
@@ -120,6 +172,15 @@ body {
   backdrop-filter: blur(18px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.058);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
+}
+/* 가장 두꺼운 유리 — 다른 것 위에 확실히 떠야 할 때 */
+.glass-3 {
+  background: rgba(16, 19, 27, 0.74);
+  backdrop-filter: blur(46px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
+    0 40px 90px -40px rgba(0, 0, 0, 1);
 }
 
 /* 위쪽 모서리에 걸리는 반사 — 유리가 두껍게 보이는 이유 */
@@ -144,17 +205,78 @@ body {
   pointer-events: none;
 }
 
-/* 눌리는 유리 — 기본 동작 */
+/* ── 금속 — 뉴모피즘 ─────────────────────────────────────────
+   유리는 떠 있고, 금속은 판에서 솟아 있다. 누르면 안으로 들어간다.
+   그림자를 두 방향으로 쓴다: 왼쪽 위는 빛, 오른쪽 아래는 그늘.
+   ──────────────────────────────────────────────────────────── */
+.nm {
+  background: linear-gradient(148deg, #12151d 0%, #0a0c12 100%);
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  box-shadow:
+    -5px -5px 14px rgba(255, 255, 255, 0.028),
+    6px 7px 18px rgba(0, 0, 0, 0.62),
+    inset 0 1px 0 rgba(255, 255, 255, 0.075);
+}
+.nm-in {
+  background: linear-gradient(148deg, #08090e 0%, #0c0f16 100%);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  box-shadow:
+    inset 4px 5px 12px rgba(0, 0, 0, 0.75),
+    inset -3px -3px 10px rgba(255, 255, 255, 0.026);
+}
+
+/* 눌리는 금속 — 기본 동작 */
+.nm-btn {
+  background: linear-gradient(148deg, #141822 0%, #0b0e15 100%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    -4px -4px 12px rgba(255, 255, 255, 0.026),
+    5px 6px 16px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  transition:
+    transform 280ms var(--ease-glass),
+    box-shadow 280ms var(--ease-glass),
+    background 280ms var(--ease-glass),
+    border-color 280ms var(--ease-glass);
+}
+.nm-btn:hover:not(:disabled) {
+  background: linear-gradient(148deg, #1a1f2c 0%, #0e121a 100%);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+  box-shadow:
+    -5px -5px 14px rgba(255, 255, 255, 0.034),
+    7px 9px 22px rgba(0, 0, 0, 0.66),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.nm-btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.988);
+  box-shadow:
+    inset 3px 4px 10px rgba(0, 0, 0, 0.72),
+    inset -2px -2px 8px rgba(255, 255, 255, 0.022);
+}
+.nm-btn:disabled {
+  opacity: 0.32;
+  box-shadow: none;
+}
+
+/* 눌리는 유리 — 가벼운 동작 */
 .btn {
   border-radius: 11px;
   background: rgba(255, 255, 255, 0.045);
   border: 1px solid rgba(255, 255, 255, 0.085);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  transition: background 260ms var(--ease-glass), border-color 260ms var(--ease-glass);
+  transition:
+    background 260ms var(--ease-glass),
+    border-color 260ms var(--ease-glass),
+    transform 260ms var(--ease-glass);
 }
 .btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.082);
   border-color: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(0.5px) scale(0.99);
 }
 .btn:disabled {
   opacity: 0.34;
@@ -173,13 +295,76 @@ body {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     0 8px 22px -12px rgba(0, 0, 0, 0.8);
-  transition: filter 260ms var(--ease-glass), opacity 260ms var(--ease-glass);
+  transition:
+    filter 260ms var(--ease-glass),
+    opacity 260ms var(--ease-glass),
+    transform 260ms var(--ease-glass),
+    box-shadow 260ms var(--ease-glass);
 }
 .btn-solid:hover:not(:disabled) {
   filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 14px 30px -14px rgba(0, 0, 0, 0.9);
+}
+.btn-solid:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.28);
 }
 .btn-solid:disabled {
   opacity: 0.24;
+}
+
+/* 놋쇠 — 법정에서만 쓰는 주 동작 */
+.btn-brass {
+  border-radius: 11px;
+  background: linear-gradient(180deg, #f2ddb0 0%, #c39a54 100%);
+  color: #241a06;
+  border: 1px solid rgba(255, 240, 205, 0.62);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 252, 240, 0.85),
+    inset 0 -2px 6px rgba(120, 80, 10, 0.35),
+    0 10px 26px -14px rgba(190, 140, 50, 0.7);
+  transition:
+    filter 260ms var(--ease-glass),
+    transform 260ms var(--ease-glass);
+}
+.btn-brass:hover:not(:disabled) {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+}
+.btn-brass:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+}
+.btn-brass:disabled {
+  opacity: 0.3;
+}
+
+/* 지나가는 빛 — 마우스를 올리면 표면을 한 번 훑는다 */
+.sheen {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.sheen::after {
+  content: "";
+  position: absolute;
+  inset: -40% -60%;
+  background: linear-gradient(
+    104deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.1) 48%,
+    rgba(255, 255, 255, 0.02) 56%,
+    transparent 64%
+  );
+  transform: translateX(-120%);
+  transition: transform 900ms var(--ease-glass);
+  pointer-events: none;
+  z-index: 1;
+}
+.sheen:hover::after {
+  transform: translateX(120%);
 }
 
 /* ── 한국어 본문 ─────────────────────────────────────────── */
@@ -196,6 +381,13 @@ body {
   font-weight: 600;
 }
 
+/* 판결문 — 명조. 법원에서 오는 종이는 고딕이 아니다 */
+.serif {
+  font-family: var(--font-serif);
+  letter-spacing: -0.008em;
+  word-break: keep-all;
+}
+
 /* ── 움직임 — 전부 느리게 ─────────────────────────────────── */
 @keyframes rise {
   from { opacity: 0; transform: translateY(14px) scale(0.99); }
@@ -203,7 +395,19 @@ body {
 }
 .rise { animation: rise 760ms var(--ease-glass) both; }
 
-/* 부서가 생길 때 — 유리가 굳는 것처럼 */
+@keyframes slide-in-l {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: none; }
+}
+.slide-in-l { animation: slide-in-l 620ms var(--ease-glass) both; }
+
+@keyframes slide-in-r {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: none; }
+}
+.slide-in-r { animation: slide-in-r 620ms var(--ease-glass) both; }
+
+/* 카드가 생길 때 — 유리가 굳는 것처럼 */
 @keyframes pop-in {
   0% { opacity: 0; transform: scale(0.86) translateY(14px); filter: blur(10px); }
   55% { opacity: 1; filter: blur(0); }
@@ -258,12 +462,18 @@ body {
   animation: shimmer 2.8s linear infinite;
 }
 
-/* 회의 중인 부서 */
+/* 회의 중인 부서 · 발언 중인 당사자 */
 @keyframes pulse-ring {
   0%, 100% { box-shadow: 0 0 0 0 rgba(159, 192, 255, 0.3); }
   55% { box-shadow: 0 0 0 9px rgba(159, 192, 255, 0); }
 }
 .pulse-ring { animation: pulse-ring 3s var(--ease-glass) infinite; }
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(224, 189, 125, 0.34); }
+  55% { box-shadow: 0 0 0 10px rgba(224, 189, 125, 0); }
+}
+.pulse-gold { animation: pulse-gold 2.6s var(--ease-glass) infinite; }
 
 @keyframes bar-fill {
   from { width: 0; }
@@ -303,25 +513,158 @@ body {
 }
 .gauge { animation: gauge 1900ms var(--ease-glass) both; }
 
+/* ── 법정 전용 ───────────────────────────────────────────── */
+
+/* 의사봉 — 개정할 때 한 번 내리친다 */
+@keyframes gavel-hit {
+  0% { transform: rotate(-38deg) translateY(-4px); }
+  38% { transform: rotate(10deg) translateY(2px); }
+  50% { transform: rotate(4deg); }
+  62% { transform: rotate(9deg) translateY(1px); }
+  100% { transform: rotate(0deg); }
+}
+.gavel-hit {
+  animation: gavel-hit 1100ms var(--ease-spring) both;
+  transform-origin: 78% 78%;
+}
+
+/* 법정이 한 번 흔들린다 */
+@keyframes court-shake {
+  0%, 100% { transform: none; }
+  22% { transform: translate3d(0, 2.5px, 0); }
+  34% { transform: translate3d(0, -1.5px, 0); }
+  48% { transform: translate3d(0, 1px, 0); }
+}
+.court-shake { animation: court-shake 620ms var(--ease-glass) both; }
+
+/* 판결 도장 — 위에서 내려찍힌다 */
+@keyframes stamp {
+  0% { opacity: 0; transform: scale(2.4) rotate(-26deg); filter: blur(6px); }
+  55% { opacity: 1; filter: blur(0); }
+  70% { transform: scale(0.93) rotate(-11deg); }
+  84% { transform: scale(1.05) rotate(-13deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-12deg); }
+}
+.stamp { animation: stamp 900ms var(--ease-glass) both; }
+
+/* 놋쇠 명패 위를 도는 빛 */
+@keyframes brass-shine {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.brass {
+  background: linear-gradient(
+    100deg,
+    #8a7038 0%,
+    #d9bd85 22%,
+    #fff3d6 32%,
+    #cfae72 44%,
+    #8a7038 68%,
+    #b99a5e 100%
+  );
+  background-size: 260% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: brass-shine 7s linear infinite;
+}
+
+/* 속기록 커서 */
+@keyframes rec-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+.rec-blink { animation: rec-blink 1.4s ease-in-out infinite; }
+
+/* 19금 봉인 — 아주 느리게 맥동 */
+@keyframes seal-throb {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.34); }
+  55% { box-shadow: 0 0 0 8px rgba(255, 107, 107, 0); }
+}
+.seal-throb { animation: seal-throb 2.8s var(--ease-glass) infinite; }
+
+/* 조명 — 법대 위로 떨어지는 빛 */
+.spot {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    58% 78% at 50% -14%,
+    rgba(224, 189, 125, 0.16) 0%,
+    rgba(224, 189, 125, 0.045) 42%,
+    transparent 72%
+  );
+}
+
+/* 나무 결 — 법대 앞판 */
+.wood {
+  background:
+    linear-gradient(180deg, rgba(255, 236, 200, 0.055) 0%, transparent 40%),
+    repeating-linear-gradient(
+      92deg,
+      rgba(255, 255, 255, 0.016) 0px,
+      rgba(255, 255, 255, 0.016) 1px,
+      transparent 1px,
+      transparent 7px
+    ),
+    linear-gradient(160deg, #171208 0%, #0d0a06 100%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mesh::before,
   .mesh::after,
   .mesh > i,
   .rise,
+  .slide-in-l,
+  .slide-in-r,
   .pop-in,
   .draw,
   .sweep::after,
   .thinking,
   .pulse-ring,
+  .pulse-gold,
   .bar-fill,
   .caret,
   .dot-step,
   .tab-load::before,
-  .gauge {
+  .gauge,
+  .gavel-hit,
+  .court-shake,
+  .stamp,
+  .brass,
+  .rec-blink,
+  .seal-throb {
     animation: none !important;
   }
   .thinking { color: var(--color-t2); }
+  .brass { color: var(--color-gold); }
   .tab-load::before { width: 100%; opacity: 0.32; }
+  .sheen::after { display: none; }
+  .stamp { opacity: 1; transform: rotate(-12deg); }
+}
+
+/* ── 화면 가장자리 ───────────────────────────────────────────
+   폰에서는 판을 화면 끝까지 붙인다. 10px 여백을 두느니 그 10px을
+   본문에 주는 게 낫다. 대신 노치와 홈 인디케이터는 피해야 한다.
+   ──────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+  .app-shell {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* 서랍은 화면에 직접 붙으므로 자기 몫의 여백을 따로 챙긴다 */
+@media (max-width: 1023px) {
+  .safe-drawer {
+    padding-top: max(10px, env(safe-area-inset-top));
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: 10px;
+  }
 }
 
 /* ── 스크롤바 ────────────────────────────────────────────── */

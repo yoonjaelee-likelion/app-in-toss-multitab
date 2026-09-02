@@ -45,9 +45,10 @@ export function TabStrip({
   }, [menu]);
 
   return (
-    <div ref={wrap} className="relative shrink-0">
+    <div ref={wrap} className="relative shrink-0 flex items-center gap-1.5 px-3 sm:px-5 pb-2.5">
+      {/* 탭만 흐르고 + 는 자리에 남는다 — 좁은 화면에서 밀려 나가면 못 찾는다 */}
       <div
-        className="flex items-center gap-1.5 px-3 sm:px-5 pb-2.5 overflow-x-auto no-bar"
+        className="flex-1 min-w-0 flex items-center gap-1.5 overflow-x-auto no-bar"
         role="tablist"
         aria-label="열린 AI"
       >
@@ -59,7 +60,7 @@ export function TabStrip({
           return (
             <div
               key={id}
-              className={`relative shrink-0 group flex items-center h-[32px] rounded-[10px] overflow-hidden transition-colors ${
+              className={`relative shrink-0 group flex items-center h-[38px] sm:h-[32px] rounded-[11px] sm:rounded-[10px] overflow-hidden transition-colors ${
                 on ? "glass" : "glass-2 opacity-70 hover:opacity-100"
               }`}
               style={{ maxWidth: 180, borderColor: on ? `${m.color}44` : undefined }}
@@ -91,8 +92,10 @@ export function TabStrip({
                 type="button"
                 onClick={() => onClose(id)}
                 aria-label={`${m.name} 닫기`}
-                className={`shrink-0 mr-1.5 w-[18px] h-[18px] rounded-[5px] grid place-items-center text-t3 hover:text-t1 hover:bg-white/10 transition-all ${
-                  on ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus:opacity-100"
+                className={`shrink-0 mr-1 sm:mr-1.5 w-[26px] h-[26px] sm:w-[18px] sm:h-[18px] rounded-[7px] sm:rounded-[5px] grid place-items-center text-t3 hover:text-t1 active:bg-white/15 sm:hover:bg-white/10 transition-all ${
+                  on
+                    ? "opacity-100"
+                    : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
                 }`}
               >
                 <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden>
@@ -115,30 +118,24 @@ export function TabStrip({
             </div>
           );
         })}
-
-        <button
-          type="button"
-          onClick={() => setMenu((v) => !v)}
-          disabled={full}
-          aria-label="AI 추가"
-          aria-expanded={menu}
-          className="shrink-0 w-[30px] h-[30px] rounded-[9px] grid place-items-center glass-2 text-t2 hover:text-t1 hover:bg-white/[.07] disabled:opacity-30 transition-colors"
-        >
-          <svg width="13" height="13" viewBox="0 0 14 14" aria-hidden>
-            <path
-              d="M7 1.5v11M1.5 7h11"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
-
-        <span className="shrink-0 w-1" />
+        <span className="shrink-0 w-0.5" />
       </div>
 
+      <button
+        type="button"
+        onClick={() => setMenu((v) => !v)}
+        disabled={full}
+        aria-label="AI 추가"
+        aria-expanded={menu}
+        className="shrink-0 w-[38px] h-[38px] sm:w-[30px] sm:h-[30px] rounded-[11px] sm:rounded-[9px] grid place-items-center glass-2 text-t2 hover:text-t1 active:bg-white/[.1] sm:hover:bg-white/[.07] disabled:opacity-30 transition-colors"
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
+          <path d="M7 1.5v11M1.5 7h11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      </button>
+
       {menu && (
-        <div className="absolute left-3 sm:left-5 top-full z-40 w-[290px] rise">
+        <div className="absolute right-3 sm:right-5 top-full z-40 w-[min(290px,calc(100vw-24px))] rise">
           <div className="glass glass-lit rounded-[14px] p-1.5">
             <p className="px-2.5 py-1.5 text-[11.5px] text-t3">
               AI 추가 · {tabs.length}/{MAX_TABS} 열림
@@ -154,7 +151,7 @@ export function TabStrip({
                     onOpen(m.id);
                     setMenu(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-[9px] hover:bg-white/[.07] text-left transition-colors"
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2.5 sm:py-2 rounded-[9px] active:bg-white/[.1] sm:hover:bg-white/[.07] text-left transition-colors"
                 >
                   <span
                     className="w-[7px] h-[7px] rounded-full shrink-0"

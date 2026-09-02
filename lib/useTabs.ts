@@ -277,6 +277,15 @@ export function useTabs(stance: Stance = "judge") {
     setTurns([]);
   }, []);
 
+  /** 왼쪽 목록에서 지난 대화를 다시 열 때 — 다시 물어보지 않고 기록만 되돌린다 */
+  const load = useCallback((snap: { tabs?: string[]; turns?: Turn[] }) => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setTabs(snap.tabs?.length ? snap.tabs : DEFAULT_TABS);
+    setTurns(snap.turns ?? []);
+    setBusy(false);
+  }, []);
+
   const hasAnswers = useMemo(
     () => turns.some((t) => t.kind === "group" && t.gkind !== "synthesis"),
     [turns],
@@ -313,5 +322,6 @@ export function useTabs(stance: Stance = "judge") {
     retry,
     stop,
     reset,
+    load,
   };
 }

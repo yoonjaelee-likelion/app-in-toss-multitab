@@ -60,7 +60,11 @@ export function Composer({
         </span>
 
         {busy ? (
-          <button type="button" onClick={onStop} className="btn h-[31px] px-3 text-[12.5px] font-medium text-t1">
+          <button
+            type="button"
+            onClick={onStop}
+            className="btn h-[36px] sm:h-[31px] px-3.5 sm:px-3 text-[12.5px] font-medium text-t1"
+          >
             중단
           </button>
         ) : (
@@ -68,7 +72,7 @@ export function Composer({
             type="button"
             onClick={send}
             disabled={!can}
-            className="btn-solid h-[31px] pl-3 pr-2.5 text-[12.5px] font-semibold flex items-center gap-1.5 disabled:cursor-not-allowed"
+            className="btn-solid h-[36px] sm:h-[31px] pl-3.5 pr-3 sm:pl-3 sm:pr-2.5 text-[12.5px] font-semibold flex items-center gap-1.5 disabled:cursor-not-allowed"
           >
             보내기
             <span className="text-[10.5px] font-normal opacity-55">⏎</span>

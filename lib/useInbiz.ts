@@ -235,6 +235,28 @@ export function useInbiz() {
     setError("");
   }, []);
 
+  /** 왼쪽 목록에서 지난 진단을 다시 열 때 — 다시 돌리지 않고 결과만 되돌린다 */
+  const load = useCallback(
+    (snap: {
+      idea?: string;
+      headline?: string;
+      depts?: Dept[];
+      meetings?: Meeting[];
+      diagnosis?: Diagnosis | null;
+    }) => {
+      abortRef.current?.abort();
+      abortRef.current = null;
+      setIdea(snap.idea ?? "");
+      setHeadline(snap.headline ?? "");
+      setDepts(snap.depts ?? []);
+      setMeetings(snap.meetings ?? []);
+      setDiagnosis(snap.diagnosis ?? null);
+      setError("");
+      setPhase("done");
+    },
+    [],
+  );
+
   const busy = phase !== "idle" && phase !== "done";
 
   return {
@@ -250,5 +272,6 @@ export function useInbiz() {
     run,
     stop,
     reset,
+    load,
   };
 }

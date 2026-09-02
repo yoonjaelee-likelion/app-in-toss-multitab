@@ -5,8 +5,19 @@ import { Thinking } from "@/components/Thinking";
 import { Meetings, Reports } from "@/components/inbiz/Reports";
 import { OrgChart } from "@/components/inbiz/OrgChart";
 import { Scorecard } from "@/components/inbiz/Scorecard";
-import type { Phase } from "@/lib/inbiz";
+import { newId } from "@/lib/chat";
+import type { Dept, Diagnosis, Meeting, Phase } from "@/lib/inbiz";
+import type { StoredSession } from "@/lib/sessions";
 import { useInbiz } from "@/lib/useInbiz";
+import type { PersistInput } from "@/lib/useSessions";
+
+interface InbizSnapshot {
+  idea: string;
+  headline: string;
+  depts: Dept[];
+  meetings: Meeting[];
+  diagnosis: Diagnosis | null;
+}
 
 /** 업종이 겹치지 않게 골랐다 — 부서 구성이 매번 달라지는 걸 보여주려면 */
 const IDEAS = [
@@ -29,11 +40,54 @@ const STEPS: { key: Phase; label: string }[] = [
   { key: "diagnosing", label: "종합 진단" },
 ];
 
-export function Inbiz() {
+export function Inbiz({
+  persist,
+  restore,
+  onSession,
+}: {
+  persist: (p: PersistInput) => void;
+  restore: StoredSession | null;
+  onSession: (id: string) => void;
+}) {
   const t = useInbiz();
   const [text, setText] = useState("");
   const scroller = useRef<HTMLDivElement>(null);
   const ta = useRef<HTMLTextAreaElement>(null);
+  const idRef = useRef<string | null>(restore?.id ?? null);
+  const booted = useRef(false);
+
+  useEffect(() => {
+    if (booted.current) return;
+    booted.current = true;
+    if (restore?.data) t.load(restore.data as InbizSnapshot);
+  }, [restore, t]);
+
+  /* 단계가 넘어갈 때만 저장한다 — 스트리밍 중에 저장하면 화면이 멎는다 */
+  const snapRef = useRef<InbizSnapshot | null>(null);
+  useEffect(() => {
+    snapRef.current = {
+      idea: t.idea,
+      headline: t.headline,
+      depts: t.depts,
+      meetings: t.meetings,
+      diagnosis: t.diagnosis,
+    };
+  }, [t.idea, t.headline, t.depts, t.meetings, t.diagnosis]);
+
+  useEffect(() => {
+    const id = idRef.current;
+    const snap = snapRef.current;
+    if (!id || !snap?.idea) return;
+    persist({
+      id,
+      mode: "inbiz",
+      title: snap.idea,
+      subtitle: snap.diagnosis
+        ? `진단 완료 · ${snap.depts.length}개 부서`
+        : `${snap.depts.length}개 부서 편성`,
+      data: snap,
+    });
+  }, [t.phase, persist]);
 
   useEffect(() => {
     if (t.phase === "idle") return;
@@ -48,6 +102,8 @@ export function Inbiz() {
     if (!q || t.busy) return;
     setText("");
     if (ta.current) ta.current.style.height = "auto";
+    idRef.current = newId();
+    onSession(idRef.current);
     void t.run(q);
   };
 
@@ -121,8 +177,11 @@ export function Inbiz() {
           ) : (
             <button
               type="button"
-              onClick={t.reset}
-              className="btn h-[38px] px-4 text-[13px] font-medium text-t1"
+              onClick={() => {
+                idRef.current = null;
+                t.reset();
+              }}
+              className="nm-btn h-[38px] px-4 rounded-[12px] text-[13px] font-semibold text-t1"
             >
               다른 사업 진단하기
             </button>
