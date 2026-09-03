@@ -32,8 +32,8 @@ export function VerdictCard({ verdict, file }: { verdict: V; file: CaseFile }) {
 
       <div className="px-4 sm:px-5 pb-4">
         <div className="nm-in rounded-[13px] p-[4px] flex gap-[4px] h-[48px]">
-          <Bar name={m} pct={verdict.fault.m} tone="#6AA6FF" align="left" />
-          <Bar name={w} pct={verdict.fault.w} tone="#FF7A9C" align="right" />
+          <Bar name={m} pct={verdict.fault.m} tone="#2F63C4" align="left" />
+          <Bar name={w} pct={verdict.fault.w} tone="#C0446E" align="right" />
         </div>
       </div>
 
@@ -41,7 +41,7 @@ export function VerdictCard({ verdict, file }: { verdict: V; file: CaseFile }) {
         <div className="px-4 sm:px-5 pb-4 space-y-2">
           {verdict.sentences.map((s, i) => {
             const isMan = s.who.includes(m) || s.who.includes("남자");
-            const tone = isMan ? "#6AA6FF" : "#FF7A9C";
+            const tone = isMan ? "#2F63C4" : "#C0446E";
             return (
               <div
                 key={`${s.who}-${i}`}
@@ -111,15 +111,18 @@ function Bar({
   );
 }
 
+/** 인주로 찍은 도장. 어두운 판에서는 옅게 눌러야 했지만 종이 위에서는
+    진짜 도장처럼 진해야 한다 — 여기가 이 카드에서 제일 붉은 자리다. */
 function Stamp() {
   return (
     <span
       aria-hidden
       className="stamp grid place-items-center w-[54px] h-[54px] rounded-full shrink-0"
       style={{
-        border: "2px solid rgba(216,79,79,.55)",
-        boxShadow: "0 0 0 3px rgba(216,79,79,.1)",
-        color: "rgba(240,120,120,.86)",
+        border: "2.5px solid rgba(178,42,34,.78)",
+        boxShadow: "0 0 0 3px rgba(178,42,34,.08), 0 6px 14px -8px rgba(178,42,34,.5)",
+        background: "rgba(178,42,34,.05)",
+        color: "rgba(168,38,30,.9)",
       }}
     >
       <span className="serif text-[15px] font-bold leading-none">宣告</span>

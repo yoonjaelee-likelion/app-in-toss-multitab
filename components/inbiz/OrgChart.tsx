@@ -50,7 +50,7 @@ export function OrgChart({
             headKind ? "sweep" : ""
           }`}
         >
-          <span className="shrink-0 w-[34px] h-[34px] rounded-[11px] grid place-items-center text-[12px] font-bold text-t1 bg-white/[.1] border border-white/[.14]">
+          <span className="shrink-0 w-[34px] h-[34px] rounded-[11px] grid place-items-center text-[12px] font-bold text-t1 nm">
             대표
           </span>
           <span className="min-w-0">
@@ -85,7 +85,7 @@ export function OrgChart({
                   y1="0"
                   x2="50%"
                   y2={TRUNK}
-                  stroke="rgba(255,255,255,.15)"
+                  stroke="var(--color-line)"
                   strokeWidth="1.5"
                   strokeLinecap="round"
                   className="draw"
@@ -97,7 +97,7 @@ export function OrgChart({
                     y1={BUS}
                     x2={at(n - 1)}
                     y2={BUS}
-                    stroke="rgba(255,255,255,.15)"
+                    stroke="var(--color-line)"
                     strokeWidth="1.5"
                     strokeLinecap="round"
                     className="draw"
@@ -115,7 +115,7 @@ export function OrgChart({
                     y1={BUS}
                     x2={at(i)}
                     y2={DROP}
-                    stroke={d.status === "working" ? `${d.color}cc` : "rgba(255,255,255,.15)"}
+                    stroke={d.status === "working" ? `${d.color}cc` : "var(--color-line)"}
                     strokeWidth="1.5"
                     strokeLinecap="round"
                     className="draw"
@@ -168,8 +168,8 @@ function DeptChip({ dept, index, meeting }: { dept: Dept; index: number; meeting
       <span
         className="w-[30px] h-[30px] rounded-[10px] grid place-items-center text-[10.5px] font-bold shrink-0 transition-all duration-700"
         style={{
-          background: working ? `${dept.color}2E` : "rgba(255,255,255,.07)",
-          border: `1px solid ${working ? `${dept.color}66` : "rgba(255,255,255,.1)"}`,
+          background: working ? `${dept.color}2E` : "var(--g1-top)",
+          border: `1px solid ${working ? `${dept.color}66` : "var(--color-line)"}`,
           color: working ? dept.color : "var(--color-t2)",
         }}
       >

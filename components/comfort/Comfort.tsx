@@ -133,7 +133,7 @@ export function Comfort({
 
       <div className="shrink-0 border-t border-line-2 px-3 sm:px-5 py-3">
         <div className="mx-auto w-full max-w-[640px]">
-          <div className="glass glass-lit rounded-[16px] focus-within:border-white/20 transition-colors">
+          <div className="glass glass-lit lit-focus rounded-[20px]">
             <textarea
               ref={ta}
               value={text}
@@ -165,7 +165,7 @@ export function Comfort({
                     idRef.current = null;
                     c.reset();
                   }}
-                  className="h-[36px] sm:h-[31px] px-3 sm:px-2.5 rounded-[10px] sm:rounded-[9px] text-[12px] font-medium text-t3 hover:text-t1 active:bg-white/[.09] sm:hover:bg-white/[.07] transition-colors shrink-0"
+                  className="h-[36px] sm:h-[31px] px-3 sm:px-2.5 rounded-[10px] sm:rounded-[9px] text-[12px] font-medium text-t3 hover:text-t1 press shrink-0"
                 >
                   새 방
                 </button>
@@ -183,10 +183,20 @@ export function Comfort({
                   type="button"
                   onClick={() => send(text)}
                   disabled={!text.trim()}
-                  className="btn-solid h-[36px] sm:h-[31px] pl-3.5 pr-3 sm:pl-3 sm:pr-2.5 text-[12.5px] font-semibold flex items-center gap-1.5 shrink-0 disabled:cursor-not-allowed"
+                  aria-label="보내기"
+                  title="보내기 ⏎"
+                  className="btn-solid !rounded-full w-[38px] h-[38px] grid place-items-center shrink-0 disabled:cursor-not-allowed"
                 >
-                  보내기
-                  <span className="text-[10.5px] font-normal opacity-55">⏎</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
+                    <path
+                      d="M8 13V3.4M3.8 7.6 8 3.2l4.2 4.4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </button>
               )}
             </div>
@@ -240,7 +250,7 @@ function Intro({
           <button
             type="button"
             onClick={onShuffle}
-            className="h-[34px] sm:h-[26px] px-3 sm:px-2.5 rounded-[10px] sm:rounded-[8px] text-[11.5px] font-medium text-t3 hover:text-t1 active:bg-white/[.09] sm:hover:bg-white/[.07] transition-colors"
+            className="h-[34px] sm:h-[26px] px-3 sm:px-2.5 rounded-[10px] sm:rounded-[8px] text-[11.5px] font-medium text-t3 hover:text-t1 press"
           >
             친구 섞기
           </button>
@@ -293,9 +303,15 @@ function Bubble({ msg }: { msg: ChatMsg }) {
           <span style={{ color: f.color }}>{f.name}</span>
           <span className="text-t4">{modelShort(msg.model ?? "")}</span>
         </p>
+        {/* 친구마다 자기 색을 아주 옅게 머금는다 — 다섯이 줄줄이 들어오는 방이라
+            이름을 읽기 전에 누가 말하는지 보여야 한다 */}
         <div
-          className="glass-2 rounded-[15px] rounded-tl-[5px] px-3.5 py-2.5"
-          style={{ boxShadow: `inset 2px 0 0 ${f.color}66` }}
+          className="glass-2 rounded-[16px] rounded-tl-[6px] px-3.5 py-2.5"
+          style={{
+            background: `linear-gradient(150deg, ${f.color}16, ${f.color}0a)`,
+            borderColor: `${f.color}33`,
+            boxShadow: `inset 0 1px 0 var(--lip-soft), inset 2.5px 0 0 ${f.color}80`,
+          }}
         >
           <p className="text-[14px] leading-[1.72] text-t1 break-keep whitespace-pre-wrap">
             {msg.text}

@@ -3,8 +3,11 @@
 import Image from "next/image";
 import { useMemo } from "react";
 import { IconClose, IconPanel, IconPlus, IconTrash } from "./icons";
-import { MODES, type Mode } from "./modes";
-import { GROUP_ORDER, groupOf, whenLabel, type StoredSession } from "@/lib/sessions";
+import { Settings } from "./Settings";
+import { useCopy } from "@/lib/i18n";
+import { useModes, type Mode } from "./modes";
+import type { StoredSession } from "@/lib/sessions";
+import { useWhen } from "@/lib/useWhen";
 
 const NAV_STRIDE = 44; /* 항목 40 + 간격 4 — 표시등이 이 보폭으로 미끄러진다 */
 
@@ -33,33 +36,36 @@ export function Sidebar({
   onRemove: (id: string) => void;
   onNew: () => void;
 }) {
+  const t = useCopy();
+  const MODES = useModes();
+  const when = useWhen();
   const at = Math.max(0, MODES.findIndex((m) => m.key === mode));
-  const accent = MODES[at]?.accent ?? "#9FC0FF";
+  const accent = MODES[at]?.accent ?? "#2F5FBE";
 
   const groups = useMemo(() => {
     const by = new Map<string, StoredSession[]>();
     for (const s of sessions) {
-      const g = groupOf(s.at);
+      const g = when.groupOf(s.at);
       by.set(g, [...(by.get(g) ?? []), s]);
     }
-    return GROUP_ORDER.filter((g) => by.has(g)).map((g) => [g, by.get(g) as StoredSession[]] as const);
-  }, [sessions]);
+    return when.order.filter((g) => by.has(g)).map((g) => [g, by.get(g) as StoredSession[]] as const);
+  }, [sessions, when]);
 
   return (
     <>
       {/* 좁은 화면에서 뒤를 덮는 판 */}
       <button
         type="button"
-        aria-label="메뉴 닫기"
+        aria-label={t.shell.closeMenu}
         onClick={onMobileClose}
-        className={`lg:hidden fixed inset-0 z-40 bg-black/55 transition-opacity duration-500 ${
+        className={`lg:hidden fixed inset-0 z-40 scrim transition-opacity duration-500 ${
           mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         style={{ backdropFilter: "blur(3px)" }}
       />
 
       <aside
-        aria-label="사이드바"
+        aria-label={t.brand}
         className={`
           safe-drawer z-50 shrink-0 flex flex-col
           fixed inset-y-0 left-0 w-[278px] p-2.5 transition-transform duration-[520ms]
@@ -86,16 +92,16 @@ export function Sidebar({
                 style={{
                   width: 26,
                   height: 26,
-                  boxShadow: "0 1px 0 rgba(255,255,255,.5) inset, 0 6px 14px -8px rgba(0,0,0,.6)",
+                  boxShadow: "0 1px 0 var(--lip) inset, 0 5px 12px -6px rgba(var(--shadow-warm),.45)",
                 }}
               >
                 <Image src="/logo.png" alt="" width={26} height={26} priority className="block" />
               </span>
               {!collapsed && (
                 <span className="min-w-0 flex items-baseline gap-1.5">
-                  <span className="text-[14.5px] font-bold tracking-[-0.03em] text-t1">멀티탭</span>
+                  <span className="text-[14.5px] font-bold tracking-[-0.03em] text-t1">{t.brand}</span>
                   <span className="text-[9.5px] font-semibold tracking-[0.1em] text-t4 uppercase">
-                    beta
+                    {t.beta}
                   </span>
                 </span>
               )}
@@ -107,16 +113,16 @@ export function Sidebar({
                 <button
                   type="button"
                   onClick={() => onCollapse(true)}
-                  aria-label="사이드바 접기"
-                  className="hidden lg:grid w-[28px] h-[28px] place-items-center rounded-[8px] text-t3 hover:text-t1 hover:bg-white/[.07] transition-colors"
+                  aria-label={t.shell.collapse}
+                  className="hidden lg:grid w-[28px] h-[28px] place-items-center rounded-[8px] text-t3 hover:text-t1 press"
                 >
                   <IconPanel />
                 </button>
                 <button
                   type="button"
                   onClick={onMobileClose}
-                  aria-label="메뉴 닫기"
-                  className="lg:hidden grid w-[38px] h-[38px] place-items-center rounded-[10px] text-t3 hover:text-t1 active:bg-white/[.09] transition-colors"
+                  aria-label={t.shell.closeMenu}
+                  className="lg:hidden grid w-[38px] h-[38px] place-items-center rounded-[10px] text-t3 hover:text-t1 press"
                 >
                   <IconClose />
                 </button>
@@ -128,30 +134,32 @@ export function Sidebar({
             <button
               type="button"
               onClick={() => onCollapse(false)}
-              aria-label="사이드바 펼치기"
-              className="hidden lg:grid mx-auto mb-1 w-[30px] h-[30px] place-items-center rounded-[9px] text-t3 hover:text-t1 hover:bg-white/[.07] transition-colors"
+              aria-label={t.shell.expand}
+              className="hidden lg:grid mx-auto mb-1 w-[30px] h-[30px] place-items-center rounded-[9px] text-t3 hover:text-t1 press"
             >
               <IconPanel />
             </button>
           )}
 
-          {/* ── 새로 시작 ──────────────────────────────────── */}
+          {/* ── 새로 시작 ────────────────────────────────────
+              화면에 잉걸빛은 하나면 된다. 그건 보내기 버튼이 가져가고,
+              여기는 잉걸빛 글자만 남긴다 — 둘 다 타오르면 어느 쪽도 안 보인다. */}
           <div className={`shrink-0 ${collapsed ? "px-2" : "px-2.5"} pb-2.5`}>
             <button
               type="button"
               onClick={onNew}
-              className={`sheen btn-solid w-full flex items-center justify-center gap-1.5 font-semibold ${
-                collapsed ? "h-[38px] px-0" : "h-[38px] px-3 text-[13px]"
+              className={`sheen nm-btn w-full flex items-center justify-center gap-1.5 font-semibold rounded-[12px] text-accent ${
+                collapsed ? "h-[40px] px-0" : "h-[40px] px-3 text-[13px]"
               }`}
-              title="새로 시작"
+              title={t.shell.newStart}
             >
               <IconPlus size={collapsed ? 17 : 15} />
-              {!collapsed && <span>새로 시작</span>}
+              {!collapsed && <span>{t.shell.newStart}</span>}
             </button>
           </div>
 
           {/* ── 모드 ───────────────────────────────────────── */}
-          <nav className={`shrink-0 relative ${collapsed ? "px-2" : "px-2.5"}`} aria-label="모드">
+          <nav className={`shrink-0 relative ${collapsed ? "px-2" : "px-2.5"}`} aria-label={t.shell.quickJump}>
             <span
               aria-hidden
               className="absolute left-2.5 right-2.5 h-[40px] rounded-[11px] transition-transform duration-[560ms] nm-in"
@@ -220,7 +228,7 @@ export function Sidebar({
             <div className="flex-1 min-h-0 mt-2 flex flex-col">
               <div className="shrink-0 px-4 pb-1.5 flex items-center">
                 <span className="text-[10.5px] font-semibold tracking-[0.12em] text-t4 uppercase">
-                  기록
+                  {t.shell.history}
                 </span>
                 <span className="flex-1" />
                 {sessions.length > 0 && (
@@ -231,7 +239,7 @@ export function Sidebar({
               <div className="flex-1 min-h-0 overflow-y-auto scroll-y px-2 pb-2">
                 {sessions.length === 0 ? (
                   <p className="px-2 py-3 text-[11.5px] leading-[1.6] text-t4">
-                    아직 없습니다. 무엇이든 한 번 돌리면 여기 쌓이고, 눌러서 그대로 다시 엽니다.
+                    {t.shell.historyEmpty}
                   </p>
                 ) : (
                   groups.map(([label, items]) => (
@@ -255,17 +263,24 @@ export function Sidebar({
 
           {collapsed && <div className="flex-1" />}
 
-          {/* ── 바닥 ───────────────────────────────────────── */}
+          {/* ── 바닥 — 설정과 상태 ───────────────────────────
+              설정은 페이지로 보내지 않는다. 고를 게 두 줄뿐이라
+              여기서 위로 열고 닫는 편이 돌아오는 길을 만드는 것보다 낫다. */}
           <div className={`shrink-0 border-t border-line-2 ${collapsed ? "p-2" : "p-2.5"}`}>
+            <Settings collapsed={collapsed} />
+
             {collapsed ? (
-              <div className="grid place-items-center h-[26px]">
-                <span className="w-[6px] h-[6px] rounded-full bg-ok/70" title="모의 응답으로도 전부 동작합니다" />
+              <div className="grid place-items-center h-[22px]">
+                <span
+                  className="w-[6px] h-[6px] rounded-full bg-ok/70"
+                  title={t.shell.noKeyNeeded}
+                />
               </div>
             ) : (
-              <div className="flex items-center gap-2 px-1">
+              <div className="flex items-center gap-2 px-2.5 pt-1.5">
                 <span className="w-[6px] h-[6px] rounded-full bg-ok/70 shrink-0" />
-                <span className="text-[10.5px] text-t4 leading-[1.4] min-w-0 flex-1">
-                  키가 없어도 전부 동작합니다
+                <span className="text-[10.5px] text-t4 leading-[1.4] min-w-0 flex-1 truncate">
+                  {t.shell.noKeyNeeded}
                 </span>
                 <kbd className="font-mono text-[9.5px] text-t4 border border-line-2 rounded-[5px] px-1.5 py-0.5">
                   ⌘K
@@ -290,37 +305,39 @@ function SessionRow({
   onOpen: () => void;
   onRemove: () => void;
 }) {
-  const m = MODES.find((x) => x.key === s.mode);
+  const m = useModes().find((x) => x.key === s.mode);
+  const t = useCopy();
+  const when = useWhen();
   return (
     <div
       className={`group relative rounded-[10px] transition-colors duration-300 ${
-        active ? "bg-white/[.07]" : "hover:bg-white/[.045]"
+        active ? "sel" : "sel-soft"
       }`}
     >
       <button
         type="button"
         onClick={onOpen}
-        aria-label={`${s.title} — ${m?.label ?? s.mode} 기록 열기`}
+        aria-label={`${s.title || t.shell.untitled} — ${m?.label ?? s.mode}`}
         title={s.title}
         className="w-full text-left pl-2.5 pr-10 lg:pr-8 py-2 lg:py-[7px] min-w-0 block"
       >
         <span className="flex items-center gap-1.5 min-w-0">
           <span
             className="w-[5px] h-[5px] rounded-full shrink-0"
-            style={{ background: m?.accent ?? "#9FC0FF", opacity: active ? 1 : 0.65 }}
+            style={{ background: m?.accent ?? "#2F5FBE", opacity: active ? 1 : 0.65 }}
           />
           <span
             className={`text-[12.5px] leading-[1.35] truncate ${
               active ? "text-t1 font-medium" : "text-t2"
             }`}
           >
-            {s.title || "제목 없음"}
+            {s.title || t.shell.untitled}
           </span>
         </span>
         <span className="mt-0.5 flex items-center gap-1.5 pl-[11px] min-w-0">
           <span className="text-[10.5px] text-t4 truncate">{s.subtitle}</span>
           <span className="ml-auto shrink-0 font-mono text-[9.5px] text-t4">
-            {whenLabel(s.at)}
+            {when.label(s.at)}
           </span>
         </span>
       </button>
@@ -328,8 +345,8 @@ function SessionRow({
       <button
         type="button"
         onClick={onRemove}
-        aria-label="기록 지우기"
-        className="absolute right-1 top-1/2 -translate-y-1/2 w-[32px] h-[32px] lg:w-[22px] lg:h-[22px] grid place-items-center rounded-[8px] lg:rounded-[6px] text-t4 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus:opacity-100 hover:text-bad active:bg-white/[.1] lg:hover:bg-white/[.08] transition-all"
+        aria-label={t.shell.removeSession}
+        className="absolute right-1 top-1/2 -translate-y-1/2 w-[32px] h-[32px] lg:w-[22px] lg:h-[22px] grid place-items-center rounded-[8px] lg:rounded-[6px] text-t4 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus:opacity-100 hover:text-bad press press transition-all"
       >
         <IconTrash size={13} />
       </button>

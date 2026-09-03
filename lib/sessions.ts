@@ -47,35 +47,57 @@ export function saveSessions(list: StoredSession[]) {
   }
 }
 
-/** 같은 날이면 시각만, 아니면 날짜만 */
-export function whenLabel(at: number): string {
-  const d = new Date(at);
-  const now = new Date();
-  const sameDay =
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate();
-  if (sameDay) {
-    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  }
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-  const isYesterday =
-    d.getFullYear() === yesterday.getFullYear() &&
-    d.getMonth() === yesterday.getMonth() &&
-    d.getDate() === yesterday.getDate();
-  if (isYesterday) return "어제";
-  return `${d.getMonth() + 1}월 ${d.getDate()}일`;
+const DAY = 86_400_000;
+
+/** 어제인가 — 날짜로 본다. 24시간이 아니라 달력이 기준이어야 한다 */
+function isYesterday(d: Date, now: Date): boolean {
+  const y = new Date(now);
+  y.setDate(now.getDate() - 1);
+  return (
+    d.getFullYear() === y.getFullYear() &&
+    d.getMonth() === y.getMonth() &&
+    d.getDate() === y.getDate()
+  );
 }
 
-/** 오늘 · 어제 · 지난 7일 · 이전 */
-export function groupOf(at: number): string {
-  const day = 86_400_000;
-  const diff = Date.now() - at;
-  if (diff < day && new Date(at).getDate() === new Date().getDate()) return "오늘";
-  if (diff < 2 * day) return "어제";
-  if (diff < 7 * day) return "지난 7일";
-  return "이전";
+/**
+ * 기록에 붙는 시각과 묶음 이름.
+ *
+ * 말이 언어를 타므로 사전을 받아서 만든다. 훅은 Sidebar와 ⌘K 양쪽에서 쓴다.
+ */
+export function makeWhen(copy: {
+  today: string;
+  yesterday: string;
+  week: string;
+  older: string;
+  monthDay: (m: number, d: number) => string;
+}) {
+  /** 같은 날이면 시각만, 아니면 날짜만 */
+  const label = (at: number): string => {
+    const d = new Date(at);
+    const now = new Date();
+    const sameDay =
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate();
+    if (sameDay) {
+      return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+    }
+    if (isYesterday(d, now)) return copy.yesterday;
+    return copy.monthDay(d.getMonth() + 1, d.getDate());
+  };
+
+  const groupOf = (at: number): string => {
+    const now = new Date();
+    const d = new Date(at);
+    const diff = Date.now() - at;
+    if (diff < DAY && d.getDate() === now.getDate()) return copy.today;
+    if (isYesterday(d, now)) return copy.yesterday;
+    if (diff < 7 * DAY) return copy.week;
+    return copy.older;
+  };
+
+  return { label, groupOf, order: [copy.today, copy.yesterday, copy.week, copy.older] };
 }
 
-export const GROUP_ORDER = ["오늘", "어제", "지난 7일", "이전"];
+export type When = ReturnType<typeof makeWhen>;

@@ -26,105 +26,105 @@ export const DEPTS: DeptDef[] = [
     key: "market",
     name: "상권분석팀",
     abbr: "상권",
-    color: "#5B8CFF",
+    color: "#2F5FBE",
     scope: "입지, 유동인구, 배후수요, 학군·역세권, 경쟁 밀도, 임대 시세",
   },
   {
     key: "customer",
     name: "고객조사팀",
     abbr: "고객",
-    color: "#4DA3FF",
+    color: "#0E6B9E",
     scope: "타겟 정의, 지불 의사, 구매 빈도, 대체재, 실제 수요 검증 방법",
   },
   {
     key: "product",
     name: "제품개발팀",
     abbr: "제품",
-    color: "#A56BFF",
+    color: "#6A48C4",
     scope: "제품·서비스 구성, 핵심 기능, 최소 실행 범위, 품질 기준",
   },
   {
     key: "food",
     name: "식품개발팀",
     abbr: "식품",
-    color: "#FF8A5B",
+    color: "#B4562A",
     scope: "메뉴 구성, 레시피 현지화, 원가율, 조리 동선, 위생·보관",
   },
   {
     key: "finance",
     name: "재무팀",
     abbr: "재무",
-    color: "#3DDC97",
+    color: "#15734E",
     scope: "초기 자본, 고정비·변동비, 손익분기, 현금흐름, 회수 기간",
   },
   {
     key: "marketing",
     name: "마케팅팀",
     abbr: "마케",
-    color: "#FF6FA5",
+    color: "#B03A63",
     scope: "포지셔닝, 채널 전략, 획득 단가, 오픈 전략, 재방문 설계",
   },
   {
     key: "brand",
     name: "브랜드팀",
     abbr: "브랜",
-    color: "#D46BFF",
+    color: "#8E3FB0",
     scope: "네이밍, 컨셉 일관성, 시각 언어, 기억되는 한 가지",
   },
   {
     key: "ops",
     name: "운영팀",
     abbr: "운영",
-    color: "#FFB454",
+    color: "#9A5F0B",
     scope: "인력 배치, 회전율, 피크 대응, 재고, 표준화 가능성",
   },
   {
     key: "supply",
     name: "공급망팀",
     abbr: "공급",
-    color: "#C4A24A",
+    color: "#7A6413",
     scope: "원재료 조달, 단가 변동, 대체 공급처, 리드타임, 물류",
   },
   {
     key: "legal",
     name: "법무·인허가팀",
     abbr: "법무",
-    color: "#8E96A8",
+    color: "#5C6478",
     scope: "인허가 절차, 업종 규제, 계약 리스크, 프랜차이즈 등록 요건",
   },
   {
     key: "hr",
     name: "인사·조직팀",
     abbr: "인사",
-    color: "#5BC8D6",
+    color: "#0E6B77",
     scope: "필요 인력, 채용 난이도, 인건비, 교육, 이탈률",
   },
   {
     key: "tech",
     name: "기술팀",
     abbr: "기술",
-    color: "#6E8BFF",
+    color: "#3C57C4",
     scope: "필요 기술 스택, 개발 기간, 외주 여부, 유지보수 부담",
   },
   {
     key: "data",
     name: "데이터분석팀",
     abbr: "데이터",
-    color: "#4ED6B8",
+    color: "#0F7A6B",
     scope: "시장 규모 추정, 단위 경제성 계산, 가정 검증, 민감도 분석",
   },
   {
     key: "growth",
     name: "성장·확장팀",
     abbr: "성장",
-    color: "#FF7A7A",
+    color: "#B5352D",
     scope: "확장 조건, 2호점 시점, 체인화 구조, 복제 가능성",
   },
   {
     key: "risk",
     name: "리스크팀",
     abbr: "리스",
-    color: "#FF6B6B",
+    color: "#B5352D",
     scope: "실패 시나리오, 최악의 경우 손실, 철수 조건, 회복 가능성",
   },
 ];
@@ -473,10 +473,10 @@ export function parseDiagnosis(text: string): Diagnosis | null {
 /* ── 표시용 ──────────────────────────────────────────────── */
 
 export const VERDICT_TONE: Record<string, { color: string; band: string }> = {
-  "즉시 실행": { color: "#3DDC97", band: "표준 이상" },
-  "조건부 실행": { color: "#7EA6FF", band: "표준" },
-  "재설계 필요": { color: "#FFB454", band: "표준 이하" },
-  "보류 권고": { color: "#FF6B6B", band: "위험" },
+  "즉시 실행": { color: "#15734E", band: "표준 이상" },
+  "조건부 실행": { color: "#2F5FBE", band: "표준" },
+  "재설계 필요": { color: "#9A5F0B", band: "표준 이하" },
+  "보류 권고": { color: "#B5352D", band: "위험" },
 };
 
 export function toneFor(verdict: string) {
@@ -486,10 +486,10 @@ export function toneFor(verdict: string) {
 
 /** 인바디처럼 점수대를 말로 바꿔 준다 */
 export function bandFor(score: number): { label: string; color: string } {
-  if (score >= 75) return { label: "표준 이상", color: "#3DDC97" };
-  if (score >= 55) return { label: "표준", color: "#7EA6FF" };
-  if (score >= 40) return { label: "표준 이하", color: "#FFB454" };
-  return { label: "위험", color: "#FF6B6B" };
+  if (score >= 75) return { label: "표준 이상", color: "#15734E" };
+  if (score >= 55) return { label: "표준", color: "#2F5FBE" };
+  if (score >= 40) return { label: "표준 이하", color: "#9A5F0B" };
+  return { label: "위험", color: "#B5352D" };
 }
 
 export const newId = () => Math.random().toString(36).slice(2, 10);

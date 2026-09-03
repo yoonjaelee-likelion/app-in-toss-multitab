@@ -95,6 +95,21 @@ export const IconArrow = ({ size = 16, className }: P) => (
   </svg>
 );
 
+export const IconCheck = ({ size = 16, className }: P) => (
+  <svg {...base(size)} className={className}>
+    <path d="m3.2 8.4 3.2 3.2 6.4-7.2" />
+  </svg>
+);
+
+/** 설정 — 톱니 대신 손잡이 두 개. 톱니는 어느 앱에나 있다 */
+export const IconGear = ({ size = 16, className }: P) => (
+  <svg {...base(size)} className={className}>
+    <path d="M2.4 5.2h11.2M2.4 10.8h11.2" />
+    <circle cx="6" cy="5.2" r="1.9" />
+    <circle cx="10.4" cy="10.8" r="1.9" />
+  </svg>
+);
+
 /** 19금 봉인 */
 export const IconSeal = ({ size = 16, className }: P) => (
   <svg {...base(size)} className={className}>

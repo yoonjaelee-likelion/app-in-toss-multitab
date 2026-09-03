@@ -23,7 +23,7 @@ export const MODELS: ModelDef[] = [
     maker: "Anthropic",
     provider: "anthropic",
     modelId: "claude-opus-5",
-    color: "#3B6FD4",
+    color: "#2F5FBE",
     note: "가장 깊게 파고듭니다",
   },
   {
@@ -33,7 +33,7 @@ export const MODELS: ModelDef[] = [
     maker: "Anthropic",
     provider: "anthropic",
     modelId: "claude-sonnet-5",
-    color: "#7C5CD6",
+    color: "#6A48C4",
     note: "빠르고 균형 잡힌 답",
   },
   {
@@ -43,7 +43,7 @@ export const MODELS: ModelDef[] = [
     maker: "Anthropic",
     provider: "anthropic",
     modelId: "claude-haiku-4-5-20251001",
-    color: "#2E9E6B",
+    color: "#1B7A54",
     note: "짧고 즉각적",
   },
   {
@@ -53,7 +53,7 @@ export const MODELS: ModelDef[] = [
     maker: "OpenAI",
     provider: "openai",
     modelId: "gpt-4o",
-    color: "#C2456E",
+    color: "#AF3560",
     note: "다른 각도를 잘 냅니다",
   },
   {
@@ -63,7 +63,7 @@ export const MODELS: ModelDef[] = [
     maker: "OpenAI",
     provider: "openai",
     modelId: "gpt-4o-mini",
-    color: "#B0741A",
+    color: "#8F5C0C",
     note: "가볍게 한 표 더",
   },
   {
@@ -73,7 +73,7 @@ export const MODELS: ModelDef[] = [
     maker: "Google",
     provider: "google",
     modelId: "gemini-2.0-flash",
-    color: "#17828F",
+    color: "#0E6B77",
     note: "속도가 무기",
   },
   {
@@ -83,7 +83,7 @@ export const MODELS: ModelDef[] = [
     maker: "Google",
     provider: "google",
     modelId: "gemini-1.5-pro",
-    color: "#C2503C",
+    color: "#A93E2C",
     note: "긴 맥락에 강합니다",
   },
 ];

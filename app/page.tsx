@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Comfort } from "@/components/comfort/Comfort";
 import { Composer } from "@/components/Composer";
 import { Court } from "@/components/court/Court";
@@ -9,8 +9,9 @@ import { TabStrip } from "@/components/TabStrip";
 import { Thread } from "@/components/Thread";
 import { CommandPalette } from "@/components/shell/CommandPalette";
 import { Sidebar } from "@/components/shell/Sidebar";
-import { IconPanel, IconSearch } from "@/components/shell/icons";
-import { MODE_BY_KEY, type Mode } from "@/components/shell/modes";
+import { IconArrow, IconPanel, IconSearch } from "@/components/shell/icons";
+import { useModeMap, type Mode } from "@/components/shell/modes";
+import { useCopy } from "@/lib/i18n";
 import { newId, type Turn } from "@/lib/chat";
 import { MODEL_BY_ID } from "@/lib/models";
 import type { StoredSession } from "@/lib/sessions";
@@ -42,6 +43,8 @@ export default function Page() {
   const [restore, setRestore] = useState<StoredSession | null>(null);
   const [seed, setSeed] = useState(0);
 
+  const t = useCopy();
+  const MODE_BY_KEY = useModeMap();
   const sessions = useSessions();
   const wide = useWide();
 
@@ -89,10 +92,8 @@ export default function Page() {
 
   return (
     <div className="app-shell h-dvh flex overflow-hidden relative">
-      <div
-        className={`mesh ${mode === "court" ? "court" : mode === "comfort" ? "comfort" : ""}`}
-        aria-hidden
-      >
+      {/* 모드 이름이 그대로 배경의 온도가 된다 — 판정만 기본값을 쓴다 */}
+      <div className={`mesh ${mode}`} aria-hidden>
         <i />
       </div>
       <div className="grain" aria-hidden />
@@ -112,28 +113,28 @@ export default function Page() {
         onNew={() => fresh()}
       />
 
-      {/* 폰에서는 판이 화면에 꽉 찬다 — 여백보다 본문이 먼저다 */}
-      <main className="relative z-10 flex-1 min-w-0 flex flex-col p-0 sm:p-2.5">
-        <div className="flex-1 min-h-0 glass glass-lit sm:rounded-[22px] flex flex-col overflow-hidden">
-          {/* ── 머리 ─────────────────────────────────────── */}
-          <header className="shrink-0 h-[52px] px-2 sm:px-4 flex items-center gap-1.5 sm:gap-2 border-b border-line-2">
+      {/* 폰에서는 판이 화면에 꽉 찬다 — 여백보다 본문이 먼저다.
+          넓어지면 여백을 준다 — 유리가 떠 있으려면 뒤에 빛이 보여야 한다. */}
+      <main className="relative z-10 flex-1 min-w-0 flex flex-col p-0 sm:p-3 lg:py-4 lg:pr-4 lg:pl-3">
+        <div className="sheet flex-1 min-h-0 glass-lit sm:rounded-[26px] flex flex-col overflow-hidden">
+          {/* ── 머리 — 지금 어느 방에 있는지 한 줄. 그 이상은 두지 않는다 ── */}
+          <header className="shrink-0 h-[54px] px-2 sm:px-5 flex items-center gap-2 sm:gap-2.5">
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              aria-label="메뉴 열기"
-              className="lg:hidden grid w-[38px] h-[38px] place-items-center rounded-[10px] text-t2 hover:text-t1 active:bg-white/[.09] transition-colors shrink-0"
+              aria-label={t.shell.openMenu}
+              className="lg:hidden grid w-[38px] h-[38px] place-items-center rounded-[11px] text-t2 press shrink-0"
             >
               <IconPanel />
             </button>
 
             <span
-              className="grid place-items-center w-[26px] h-[26px] rounded-[8px] shrink-0 nm"
-              style={{ color: def.accent }}
-            >
-              <def.icon size={15} />
-            </span>
-            <span className="min-w-0 flex items-baseline gap-2">
-              <h1 className="text-[14px] font-bold tracking-[-0.02em] text-t1 shrink-0">
+              className="grid place-items-center w-[7px] h-[7px] rounded-full shrink-0"
+              style={{ background: def.accent, boxShadow: `0 0 0 3px ${def.accent}1f` }}
+              aria-hidden
+            />
+            <span className="min-w-0 flex items-baseline gap-2.5">
+              <h1 className="text-[14.5px] font-semibold tracking-[-0.025em] text-t1 shrink-0">
                 {def.label}
               </h1>
               <span className="hidden sm:block text-[11.5px] text-t4 truncate">{def.hint}</span>
@@ -144,10 +145,10 @@ export default function Page() {
             <button
               type="button"
               onClick={() => setPalette(true)}
-              className="hidden sm:flex items-center gap-2 h-[30px] pl-2.5 pr-2 rounded-[10px] btn text-t3 hover:text-t2"
-              aria-label="빠른 이동"
+              className="hidden sm:flex items-center gap-2 h-[31px] pl-3 pr-2.5 rounded-full btn text-t3 hover:text-t2"
+              aria-label={t.shell.quickJump}
             >
-              <IconSearch size={14} />
+              <IconSearch size={13.5} />
               <kbd className="font-mono text-[10px] leading-none">⌘K</kbd>
             </button>
           </header>
@@ -224,6 +225,7 @@ function Debate({
   restore: StoredSession | null;
   onSession: (id: string) => void;
 }) {
+  const c = useCopy();
   const t = useTabs(stance);
   const [active, setActive] = useState(t.tabs[0] ?? "");
   const scroller = useRef<HTMLDivElement>(null);
@@ -260,11 +262,11 @@ function Debate({
     persist({
       id,
       mode: stance,
-      title: first && first.kind === "user" ? first.text : "새 대화",
-      subtitle: `${snap.tabs.length}개 AI · ${snap.turns.filter((x) => x.kind === "user").length}개 질문`,
+      title: first && first.kind === "user" ? first.text : c.debate.newChat,
+      subtitle: c.debate.waiting(snap.tabs.length),
       data: snap,
     });
-  }, [t.turns.length, t.busy, persist, stance]);
+  }, [t.turns.length, t.busy, persist, stance, c]);
 
   const ask = useCallback(
     (text: string, targets: string[]) => {
@@ -287,22 +289,7 @@ function Debate({
 
   return (
     <div className="h-full flex flex-col min-h-0">
-      <div className="shrink-0 px-3 sm:px-5 pt-2 pb-1.5 sm:pt-2.5 sm:pb-2 flex items-center gap-2">
-        <span className="text-[11.5px] text-t3 truncate">
-          {red ? "심사역 AI들이 약점만 찾습니다" : "AI들이 각자 답하고 서로 반박합니다"}
-        </span>
-        <span className="flex-1" />
-        {!empty && (
-          <button
-            type="button"
-            onClick={reset}
-            className="h-[34px] sm:h-[28px] px-3 sm:px-2.5 rounded-[9px] text-[12.5px] font-medium text-t2 hover:text-t1 active:bg-white/[.09] sm:hover:bg-white/[.07] transition-colors shrink-0"
-          >
-            새 대화
-          </button>
-        )}
-      </div>
-
+      {/* 머리에 이미 모드 설명이 있다 — 같은 말을 두 번 하지 않는다 */}
       <TabStrip
         tabs={t.tabs}
         active={activeTab}
@@ -314,11 +301,22 @@ function Debate({
           t.openTab(id);
           setActive(id);
         }}
+        trailing={
+          !empty && (
+            <button
+              type="button"
+              onClick={reset}
+              className="shrink-0 h-[38px] sm:h-[30px] px-3.5 sm:px-3 rounded-full text-[12.5px] font-medium text-t3 hover:text-t1 press"
+            >
+              {c.debate.newChat}
+            </button>
+          )
+        }
       />
 
       <div
         ref={scroller}
-        className="flex-1 min-h-0 overflow-auto scroll-y border-t border-line-2"
+        className={`flex-1 min-h-0 overflow-auto scroll-y ${empty ? "" : "border-t border-line-2"}`}
       >
         <div style={{ minWidth: compare ? Math.max(0, cols * 250) : undefined }}>
           {empty ? (
@@ -345,7 +343,7 @@ function Debate({
                 disabled={t.busy || t.tabs.length < 2}
                 className="nm-btn shrink-0 h-[36px] sm:h-[30px] px-3.5 sm:px-3 rounded-[11px] sm:rounded-[10px] text-[12.5px] font-semibold text-t1"
               >
-                {red ? "교차 검증" : "서로 반박시키기"}
+                {red ? c.debate.crossCheck : c.debate.rebut}
               </button>
               <button
                 type="button"
@@ -353,7 +351,7 @@ function Debate({
                 disabled={t.busy}
                 className="nm-btn shrink-0 h-[36px] sm:h-[30px] px-3.5 sm:px-3 rounded-[11px] sm:rounded-[10px] text-[12.5px] font-semibold text-t1"
               >
-                {red ? "사망 진단서" : "정리하기"}
+                {red ? c.debate.deathCert : c.debate.synthesize}
               </button>
             </div>
           )}
@@ -362,7 +360,7 @@ function Debate({
 
           {t.anyMock && (
             <p className="mt-2 text-[11px] text-t4 text-center">
-              API 키가 없는 모델은 모의 응답으로 대신합니다
+              {c.debate.mockNote}
             </p>
           )}
         </div>
@@ -371,41 +369,51 @@ function Debate({
   );
 }
 
-const JUDGE_Q = [
-  "지금 이 사업, 접는 게 맞을까 더 밀어붙이는 게 맞을까",
-  "공동창업자에게 지분을 얼마나 줘야 할까",
-  "투자를 받는 게 나을까, 매출로 버티는 게 나을까",
-  "가격을 올려야 할까, 지금 유지해야 할까",
-];
-
-const RED_Q = [
-  "철산역 타코 프랜차이즈 1호점 계획을 공격해줘",
-  "직장인 냉동 도시락 구독 서비스, 어디서 죽을까",
-  "무인 스터디카페 창업 계획의 급소를 찾아줘",
-  "우리 앱은 리텐션이 낮은데 마케팅을 늘리려고 한다",
-];
-
 function Empty({ red, tabs, onPick }: { red: boolean; tabs: string[]; onPick: (q: string) => void }) {
-  const names = tabs.map((s) => MODEL_BY_ID[s]?.short).filter(Boolean);
-  const list = red ? RED_Q : JUDGE_Q;
+  const t = useCopy();
+  const open = tabs.map((s) => MODEL_BY_ID[s]).filter(Boolean);
+  const list = red ? t.debate.samplesRed : t.debate.samplesJudge;
 
   return (
-    <div className="px-5 sm:px-7 pt-12 sm:pt-16 pb-10">
-      <div className="mx-auto max-w-[560px] rise">
-        <h2 className="text-[22px] sm:text-[27px] font-bold tracking-[-0.04em] text-t1 leading-[1.34]">
-          {red ? "이 사업이 어디서 죽는지 찾습니다" : "질문 하나, 탭 여러 개"}
-        </h2>
-        <p className="mt-3 text-[14.5px] leading-[1.75] text-t2">
-          {red
-            ? "열려 있는 AI 전부가 투자 심사역이 됩니다. 좋은 점은 말하지 않고 깨질 지점만 찾습니다."
-            : "열려 있는 AI 전부가 같은 질문에 각자 답합니다. 대화는 하나라서 맥락을 공유하고, 서로 반박도 시킬 수 있습니다."}
-          {names.length > 0 && (
-            <>
-              {" "}
-              지금은 <span className="text-t1 font-medium">{names.join(", ")}</span>가 열려 있습니다.
-            </>
-          )}
-        </p>
+    /* 가운데에 놓되, 자리가 모자라면 위에서부터 채운다.
+       justify-center 하나만 쓰면 넘칠 때 머리가 잘려 나가 스크롤로도 못 올린다. */
+    <div className="min-h-full flex flex-col px-5 sm:px-7">
+      <span className="flex-1 min-h-[36px]" aria-hidden />
+      <div className="mx-auto w-full max-w-[520px]">
+        {/* 지금 무엇이 켜져 있는지 — 설명하지 않고 보여준다 */}
+        <div className="rise flex justify-center">
+          <span className="glass-2 inline-flex items-center gap-2 h-[32px] pl-2.5 pr-3.5 rounded-full">
+            <span className="flex items-center -space-x-1">
+              {open.map((m) => (
+                <i
+                  key={m.id}
+                  title={m.name}
+                  className="block w-[9px] h-[9px] rounded-full ring-[1.5px] ring-[var(--lip)]"
+                  style={{ background: m.color }}
+                />
+              ))}
+            </span>
+            <span className="text-[11.5px] font-medium text-t2">
+              {open.length > 0 ? t.debate.waiting(open.length) : t.debate.needTabs}
+            </span>
+          </span>
+        </div>
+
+        <div className="mt-6 text-center">
+          <Greeting />
+          <h2
+            className="rise display whitespace-pre-line mt-2 text-[30px] sm:text-[38px]"
+            style={{ animationDelay: "110ms" }}
+          >
+            {red ? t.debate.titleRed : t.debate.titleJudge}
+          </h2>
+          <p
+            className="rise mt-3.5 text-[14px] leading-[1.8] text-t2 max-w-[34ch] mx-auto"
+            style={{ animationDelay: "160ms" }}
+          >
+            {red ? t.debate.bodyRed : t.debate.bodyJudge}
+          </p>
+        </div>
 
         <div className="mt-8 space-y-2">
           {list.map((q, i) => (
@@ -414,14 +422,53 @@ function Empty({ red, tabs, onPick }: { red: boolean; tabs: string[]; onPick: (q
               type="button"
               onClick={() => onPick(q)}
               disabled={tabs.length === 0}
-              className="rise btn sheen w-full text-left px-3.5 py-3 text-[13.5px] leading-[1.55] text-t2 hover:text-t1"
-              style={{ animationDelay: `${i * 110}ms` }}
+              className="group rise btn sheen w-full flex items-center gap-3 text-left px-4 py-3 rounded-[14px] text-[13.5px] leading-[1.55] text-t2 hover:text-t1"
+              style={{ animationDelay: `${220 + i * 80}ms` }}
             >
-              {q}
+              <span className="min-w-0 flex-1">{q}</span>
+              {/* 누르면 어떻게 되는지 손을 올렸을 때만 말한다 */}
+              <span
+                aria-hidden
+                className="shrink-0 text-accent opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"
+              >
+                <IconArrow size={15} />
+              </span>
             </button>
           ))}
         </div>
       </div>
+      <span className="flex-1 min-h-[36px]" aria-hidden />
     </div>
+  );
+}
+
+/** 시간에 맞춰 한 마디. 이름은 모르니 시간만 안다.
+    서버 시간이 아니라 보는 사람의 시간이어야 한다 — 서버에서 미리 정하면
+    시차만큼 틀린 인사를 하게 되므로, 서버에서는 비우고 브라우저에서만 읽는다. */
+const NO_SUB = () => () => {};
+const NO_HOUR = () => -1;
+const hourNow = () => new Date().getHours();
+
+function Greeting() {
+  const t = useCopy();
+  const h = useSyncExternalStore(NO_SUB, hourNow, NO_HOUR);
+  const line =
+    h < 0
+      ? "" /* 서버에서는 아직 모른다 */
+      : h < 5
+        ? t.greet.night
+        : h < 11
+          ? t.greet.morning
+          : h < 17
+            ? t.greet.afternoon
+            : h < 22
+              ? t.greet.evening
+              : t.greet.lateNight;
+
+  // 정해지기 전에도 자리는 잡아 둔다 — 글자가 늦게 튀어나오면 그게 더 거슬린다
+  return (
+    <p className="rise text-[13px] text-t3 h-[19px]" style={{ animationDelay: "60ms" }}>
+      {line}
+    </p>
   );
 }

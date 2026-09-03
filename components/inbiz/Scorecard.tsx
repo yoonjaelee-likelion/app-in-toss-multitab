@@ -120,7 +120,7 @@ export function Scorecard({
           <ol className="space-y-2.5">
             {diagnosis.actions.map((a, i) => (
               <li key={i} className="flex gap-3 rise" style={{ animationDelay: `${i * 90}ms` }}>
-                <span className="shrink-0 mt-[1px] w-[22px] h-[22px] rounded-[7px] grid place-items-center text-[11.5px] font-bold text-t1 bg-white/[.07] border border-line-2">
+                <span className="shrink-0 mt-[1px] w-[22px] h-[22px] rounded-[7px] grid place-items-center text-[11.5px] font-bold text-t1 track-2 border border-line-2">
                   {i + 1}
                 </span>
                 <span className="prose-ko flex-1 !text-[14px]">{a}</span>
@@ -150,7 +150,7 @@ function Gauge({ score, color }: { score: number; color: string }) {
           cy="62"
           r={R}
           fill="none"
-          stroke="rgba(255,255,255,.08)"
+          stroke="var(--color-line-2)"
           strokeWidth="9"
           strokeLinecap="round"
           strokeDasharray={`${ARC} ${CIRC}`}
@@ -214,10 +214,10 @@ function MetricRow({
         )}
       </div>
 
-      <div className="relative h-[7px] rounded-full bg-white/[.06] overflow-hidden">
+      <div className="relative h-[7px] rounded-full track overflow-hidden">
         {/* 표준 구간 — 인바디의 회색 띠 */}
         <span
-          className="absolute inset-y-0 bg-white/[.05]"
+          className="absolute inset-y-0 track-2"
           style={{ left: "55%", right: "25%" }}
           aria-hidden
         />
