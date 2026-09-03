@@ -54,6 +54,13 @@ const ko = {
     comfort: { label: "위로", hint: "친구 다섯이 다르게 반응합니다", newLabel: "새 방" },
   },
 
+  /* ── 질문 계열 — 판정·레드팀·인비즈가 한 지붕 아래 있다 ── */
+  ask: {
+    nav: "질문",
+    navHint: "여러 AI에게 한 번에 물어봅니다",
+    stance: "태도",
+  },
+
   /* ── ⌘K ── */
   palette: {
     placeholder: "어디로 갈까요",
@@ -94,6 +101,7 @@ const ko = {
     titleRed: "어디서 죽는지\n먼저 봅시다",
     bodyJudge: "대화는 하나라서 맥락을 공유합니다. 답이 갈리면 서로 반박도 시킬 수 있습니다.",
     bodyRed: "열린 AI 전부가 투자 심사역이 됩니다. 좋은 점은 말하지 않고 깨질 지점만 찾습니다.",
+    placeholderRed: "깨뜨려 볼 계획을 적어주세요",
     rebut: "서로 반박시키기",
     crossCheck: "교차 검증",
     synthesize: "정리하기",
@@ -345,6 +353,12 @@ const en: Copy = {
     comfort: { label: "Comfort", hint: "Five friends, five different reactions", newLabel: "New room" },
   },
 
+  ask: {
+    nav: "Ask",
+    navHint: "Put one question to several AIs",
+    stance: "Stance",
+  },
+
   palette: {
     placeholder: "Where to?",
     aria: "Search commands",
@@ -383,6 +397,7 @@ const en: Copy = {
       "It is one conversation, so they share the context. When answers diverge you can make them argue.",
     bodyRed:
       "Every open AI becomes an investor. They will not name a single strength — only where it breaks.",
+    placeholderRed: "Describe the plan you want torn apart",
     rebut: "Make them argue",
     crossCheck: "Cross-examine",
     synthesize: "Sum it up",

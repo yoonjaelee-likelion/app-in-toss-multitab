@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { IconClose, IconPanel, IconPlus, IconTrash } from "./icons";
 import { Settings } from "./Settings";
 import { useCopy } from "@/lib/i18n";
-import { useModes, type Mode } from "./modes";
+import { familyOf, useModes, useNav, type Mode } from "./modes";
 import type { StoredSession } from "@/lib/sessions";
 import { useWhen } from "@/lib/useWhen";
 
@@ -37,10 +37,12 @@ export function Sidebar({
   onNew: () => void;
 }) {
   const t = useCopy();
-  const MODES = useModes();
+  const NAV = useNav(mode);
   const when = useWhen();
-  const at = Math.max(0, MODES.findIndex((m) => m.key === mode));
-  const accent = MODES[at]?.accent ?? "#2F5FBE";
+  /* 판정·레드팀·인비즈는 「질문」 한 줄이다 — 셋을 각각 방으로 두면
+     방이 다섯이 되고, 그러면 뭐가 다른지 아무도 모른다 */
+  const at = Math.max(0, NAV.findIndex((n) => n.key === familyOf(mode)));
+  const accent = NAV[at]?.accent ?? "#2F5FBE";
 
   const groups = useMemo(() => {
     const by = new Map<string, StoredSession[]>();
@@ -182,14 +184,14 @@ export function Sidebar({
                 transitionTimingFunction: "cubic-bezier(.16,1,.3,1)",
               }}
             />
-            {MODES.map((m) => {
-              const on = m.key === mode;
+            {NAV.map((m) => {
+              const on = m.key === familyOf(mode);
               const Icon = m.icon;
               return (
                 <button
                   key={m.key}
                   type="button"
-                  onClick={() => onMode(m.key)}
+                  onClick={() => onMode(m.key === "ask" ? "judge" : m.key)}
                   aria-current={on ? "page" : undefined}
                   title={collapsed ? `${m.label} — ${m.hint}` : m.hint}
                   className={`relative z-10 w-full h-[40px] mb-1 rounded-[11px] flex items-center transition-colors duration-300 ${
