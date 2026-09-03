@@ -78,13 +78,13 @@ function Orbit() {
   return (
     <span className="relative shrink-0 w-[13px] h-[13px]" aria-hidden>
       <svg width="13" height="13" viewBox="0 0 14 14" className="block">
-        <circle cx="7" cy="7" r="5.4" fill="none" stroke="rgba(255,255,255,.13)" strokeWidth="1.5" />
+        <circle cx="7" cy="7" r="5.4" fill="none" stroke="var(--color-line)" strokeWidth="1.5" />
         <circle
           cx="7"
           cy="7"
           r="5.4"
           fill="none"
-          stroke="rgba(244,246,250,.85)"
+          stroke="currentColor"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeDasharray="9 25"

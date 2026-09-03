@@ -1,5 +1,8 @@
-import type { ComponentType } from "react";
+"use client";
+
+import { useMemo, type ComponentType } from "react";
 import { IconChat, IconGavel, IconPulse, IconScales, IconTarget } from "./icons";
+import { useCopy } from "@/lib/i18n";
 import type { SessionMode } from "@/lib/sessions";
 
 export type Mode = SessionMode;
@@ -15,49 +18,32 @@ export interface ModeDef {
   accent: string;
 }
 
-export const MODES: ModeDef[] = [
-  {
-    key: "inbiz",
-    label: "인비즈",
-    hint: "AI 법인이 사업을 진단합니다",
-    newLabel: "새 진단",
-    icon: IconPulse,
-    accent: "#6FD8A8",
-  },
-  {
-    key: "judge",
-    label: "판정",
-    hint: "여러 AI가 답하고 서로 반박합니다",
-    newLabel: "새 대화",
-    icon: IconScales,
-    accent: "#9FC0FF",
-  },
-  {
-    key: "redteam",
-    label: "레드팀",
-    hint: "심사역 AI가 약점만 찾습니다",
-    newLabel: "새 공격",
-    icon: IconTarget,
-    accent: "#F08A8A",
-  },
-  {
-    key: "court",
-    label: "법원",
-    hint: "싸움을 재판에 부칩니다",
-    newLabel: "새 재판",
-    icon: IconGavel,
-    accent: "#E0BD7D",
-  },
-  {
-    key: "comfort",
-    label: "위로",
-    hint: "친구 다섯이 다르게 반응합니다",
-    newLabel: "새 방",
-    icon: IconChat,
-    accent: "#FF9FC2",
-  },
+/** 말은 사전에서, 아이콘과 색은 여기서. 순서도 여기가 정한다 */
+const SHAPE: { key: Mode; icon: ModeDef["icon"]; accent: string }[] = [
+  { key: "inbiz", icon: IconPulse, accent: "#16805C" },
+  { key: "judge", icon: IconScales, accent: "#2F5FBE" },
+  { key: "redteam", icon: IconTarget, accent: "#B5352D" },
+  { key: "court", icon: IconGavel, accent: "#8E5F18" },
+  { key: "comfort", icon: IconChat, accent: "#B03A63" },
 ];
 
-export const MODE_BY_KEY: Record<Mode, ModeDef> = Object.fromEntries(
-  MODES.map((m) => [m.key, m]),
-) as Record<Mode, ModeDef>;
+export function useModes(): ModeDef[] {
+  const t = useCopy();
+  return useMemo(
+    () => SHAPE.map((s) => ({ ...s, ...t.modes[s.key] })),
+    [t],
+  );
+}
+
+export function useModeMap(): Record<Mode, ModeDef> {
+  const modes = useModes();
+  return useMemo(
+    () => Object.fromEntries(modes.map((m) => [m.key, m])) as Record<Mode, ModeDef>,
+    [modes],
+  );
+}
+
+/** 색만 필요한 곳 — 사전을 거치지 않는다 */
+export const ACCENT_BY_MODE: Record<Mode, string> = Object.fromEntries(
+  SHAPE.map((s) => [s.key, s.accent]),
+) as Record<Mode, string>;

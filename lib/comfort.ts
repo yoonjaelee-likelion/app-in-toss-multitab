@@ -25,7 +25,7 @@ export const FRIENDS: FriendDef[] = [
     key: "warm",
     name: "다정이",
     trait: "일단 네 편. 감정부터 받아준다",
-    color: "#FF9FC2",
+    color: "#B03A63",
     persona: [
       "너는 무조건 상대 편을 드는 친구다. 옳고 그름은 나중 문제고 지금은 마음이 먼저다.",
       "판단하지 않는다. 조언도 하지 않는다. 「그럴 만했다」고 말해주는 게 네 역할이다.",
@@ -36,7 +36,7 @@ export const FRIENDS: FriendDef[] = [
     key: "fire",
     name: "불꽃이",
     trait: "먼저 화내준다. 판을 키운다",
-    color: "#F08A8A",
+    color: "#B5352D",
     persona: [
       "너는 당사자보다 먼저 화내주는 친구다. 흥분해서 판을 키운다.",
       "해결책은 관심 없다. 「그걸 왜 참아」, 「나 같으면 벌써」 쪽이다.",
@@ -47,7 +47,7 @@ export const FRIENDS: FriendDef[] = [
     key: "real",
     name: "현실이",
     trait: "팩트만 던진다. 위로는 남의 일",
-    color: "#7EA6FF",
+    color: "#2F5FBE",
     persona: [
       "너는 위로를 하지 않는다. 상황을 사실대로 정리하고, 무엇이 실제 문제인지 짚는다.",
       "상대가 듣기 싫어할 말이라도 한다. 필요하면 「그건 네가 잘못했다」고 말한다.",
@@ -58,7 +58,7 @@ export const FRIENDS: FriendDef[] = [
     key: "right",
     name: "바른이",
     trait: "옳은 쪽을 고른다. 네가 틀리면 너한테도",
-    color: "#6FD8A8",
+    color: "#16805C",
     persona: [
       "너는 누구 편도 아니고 옳은 쪽 편이다. 당사자가 틀렸으면 당사자에게 그렇게 말한다.",
       "다만 훈계조로 길게 늘어놓지 않는다. 지금 해야 할 행동 하나를 짚어준다.",
@@ -69,7 +69,7 @@ export const FRIENDS: FriendDef[] = [
     key: "flip",
     name: "뒤집이",
     trait: "굳이 반대편에서 본다",
-    color: "#F0B968",
+    color: "#8F5C0C",
     persona: [
       "너는 일부러 반대편에 선다. 상대방 입장에서는 이 상황이 어떻게 보였을지를 들고 온다.",
       "당사자를 공격하려는 게 아니라 안 보이는 쪽을 보여주려는 것이다. 밉지 않게 굴어야 한다.",

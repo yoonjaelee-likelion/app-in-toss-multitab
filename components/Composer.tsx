@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useCopy } from "@/lib/i18n";
 
 /**
  * 입력창. 고를 게 없다 — 열려 있는 AI 전부에게 간다.
@@ -17,6 +18,7 @@ export function Composer({
   onSend: (text: string, targets: string[]) => void;
   onStop: () => void;
 }) {
+  const t = useCopy();
   const [text, setText] = useState("");
   const ta = useRef<HTMLTextAreaElement>(null);
 
@@ -30,7 +32,9 @@ export function Composer({
   };
 
   return (
-    <div className="relative glass glass-lit rounded-[16px] focus-within:border-white/20 transition-colors">
+    /* 화면에서 가장 자주 손이 닿는 자리다. 다른 유리보다 두껍게 놓고
+       테두리를 크게 굴린다 — 여기가 말 거는 곳이라는 걸 모양이 먼저 말한다. */
+    <div className="relative glass glass-lit lit-focus rounded-[22px]">
       <textarea
         ref={ta}
         value={text}
@@ -48,34 +52,45 @@ export function Composer({
         }}
         rows={1}
         placeholder={
-          tabs.length === 0 ? "AI를 먼저 열어주세요" : "열린 AI 전부에게 한 번에 물어봅니다"
+          tabs.length === 0 ? t.composer.needTab : t.composer.placeholder
         }
-        aria-label="질문 입력"
-        className="w-full resize-none bg-transparent outline-none px-4 pt-3.5 pb-2 text-[15px] leading-[1.7] text-t1 placeholder:text-t4"
+        aria-label={t.composer.aria}
+        className="w-full resize-none bg-transparent outline-none px-5 pt-4 pb-2 text-[15px] leading-[1.7] text-t1 placeholder:text-t4"
       />
 
-      <div className="flex items-center gap-2 px-2.5 pb-2.5 pt-0.5">
-        <span className="flex-1 text-[11.5px] text-t4 pl-1 truncate">
-          {tabs.length > 0 && `${tabs.length}개 AI가 함께 답합니다`}
+      <div className="flex items-center gap-2 pl-5 pr-2.5 pb-2.5 pt-0.5">
+        <span className="flex-1 text-[11.5px] text-t4 truncate">
+          {tabs.length > 0 && t.composer.answering(tabs.length)}
         </span>
 
         {busy ? (
           <button
             type="button"
             onClick={onStop}
-            className="btn h-[36px] sm:h-[31px] px-3.5 sm:px-3 text-[12.5px] font-medium text-t1"
+            className="btn h-[38px] rounded-full px-4 text-[12.5px] font-medium text-t1"
           >
-            중단
+            {t.composer.stop}
           </button>
         ) : (
+          /* 둥근 잉걸 하나. 글자를 지우고 방향만 남긴다 */
           <button
             type="button"
             onClick={send}
             disabled={!can}
-            className="btn-solid h-[36px] sm:h-[31px] pl-3.5 pr-3 sm:pl-3 sm:pr-2.5 text-[12.5px] font-semibold flex items-center gap-1.5 disabled:cursor-not-allowed"
+            aria-label={t.composer.send}
+            title={`${t.composer.send} ⏎`}
+            className="btn-solid !rounded-full w-[38px] h-[38px] grid place-items-center shrink-0 disabled:cursor-not-allowed"
           >
-            보내기
-            <span className="text-[10.5px] font-normal opacity-55">⏎</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
+              <path
+                d="M8 13V3.4M3.8 7.6 8 3.2l4.2 4.4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </button>
         )}
       </div>

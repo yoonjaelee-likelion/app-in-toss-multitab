@@ -6,7 +6,12 @@
  * 주고받는다. 채팅이지 문서가 아니다 — 그래서 전부 짧다.
  */
 
+import { ANSWER_IN } from "./i18n";
+import type { Lang } from "./settings";
 import { MODEL_BY_ID } from "./models";
+
+/** 대리인들이 주고받는 라운드 수. 둘로는 짧고 넷이면 늘어진다 */
+export const ARGUE_ROUNDS = 3;
 
 /* ── 등급 ─────────────────────────────────────────────────── */
 
@@ -111,6 +116,8 @@ export type CourtOp = "open" | "callWoman" | "argue" | "wrap" | "jury" | "verdic
 
 export interface CourtRequest {
   op: CourtOp;
+  /** 어느 말로 재판할지 */
+  lang?: Lang;
   caseFile: CaseFile;
   cast: Cast;
   /** argue일 때 누가 말할 차례인지 */
@@ -141,11 +148,14 @@ const TONE: Record<Rating, string> = {
   ].join("\n"),
 };
 
-const SHORT = [
-  "한국어로 쓴다. 인사말·자기소개·사과 없이 바로 본론.",
-  "목록(-)이나 마크다운을 쓰지 않는다. 그냥 말하듯이 쓴다.",
-  "여기는 채팅이다. 길게 쓰면 아무도 안 읽는다.",
-].join("\n");
+/** 말투 지시. 「한국어로 쓴다」를 박아 두면 영어로 갈 수가 없으므로 언어를 받는다 */
+const SHORT = (lang: Lang) =>
+  [
+    ANSWER_IN[lang],
+    "인사말·자기소개·사과 없이 바로 본론.",
+    "목록(-)이나 마크다운을 쓰지 않는다. 그냥 말하듯이 쓴다.",
+    "여기는 채팅이다. 길게 쓰면 아무도 안 읽는다.",
+  ].join("\n");
 
 function brief(file: CaseFile): string {
   const m = nameOf(file.man, "남자");
@@ -186,7 +196,7 @@ export function courtSystem(req: CourtRequest): string {
   const file = req.caseFile;
   const m = nameOf(file.man, "남자");
   const w = nameOf(file.woman, "여자");
-  const tone = `${TONE[file.rating]}\n${SHORT}`;
+  const tone = `${TONE[file.rating]}\n${SHORT(req.lang ?? "ko")}`;
 
   if (req.op === "jury") {
     return [

@@ -238,7 +238,7 @@ function Statement({
   const [text, setText] = useState("");
   const ta = useRef<HTMLTextAreaElement>(null);
   const man = side === "man";
-  const tone = man ? "#6AA6FF" : "#FF7A9C";
+  const tone = man ? "#2F63C4" : "#C0446E";
 
   const send = () => {
     if (!text.trim() || disabled) return;
@@ -250,7 +250,7 @@ function Statement({
 
   return (
     <div
-      className="glass glass-lit rounded-[16px] transition-colors"
+      className="glass glass-lit lit-focus rounded-[20px]"
       style={{ borderColor: `${tone}3a` }}
     >
       <div className="flex items-center gap-2 px-3 pt-2.5">

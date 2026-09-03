@@ -228,14 +228,14 @@ function PhaseRail({ phase }: { phase: Phase }) {
               ) : state === "now" ? (
                 <i className="dot-step block w-[5px] h-[5px] rounded-full bg-t1" />
               ) : (
-                <i className="block w-[5px] h-[5px] rounded-full bg-white/15" />
+                <i className="block w-[5px] h-[5px] rounded-full rule" />
               )}
               {s.label}
             </span>
             {i < STEPS.length - 1 && (
               <span
                 className={`hidden sm:block w-4 h-px transition-colors duration-500 ${
-                  i < idx ? "bg-white/20" : "bg-white/[.07]"
+                  i < idx ? "rule" : "track-2"
                 }`}
                 aria-hidden
               />
@@ -287,7 +287,7 @@ function Intake({
           </p>
         </div>
 
-        <div className="rise mt-9 glass glass-lit rounded-[19px] p-2" style={{ animationDelay: "140ms" }}>
+        <div className="rise mt-9 glass glass-lit lit-focus rounded-[20px] p-2" style={{ animationDelay: "140ms" }}>
           <textarea
             ref={taRef}
             value={text}
@@ -339,7 +339,7 @@ function Intake({
                 style={{ animationDelay: `${300 + i * 55}ms` }}
               >
                 <span className="text-[10px] text-t4 font-medium shrink-0">{it.tag}</span>
-                <span className="w-px h-[11px] bg-white/10 shrink-0" aria-hidden />
+                <span className="w-px h-[11px] rule-2 shrink-0" aria-hidden />
                 {it.q}
               </button>
             ))}

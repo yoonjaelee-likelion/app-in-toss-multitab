@@ -15,8 +15,8 @@ import {
   type Who,
 } from "@/lib/court";
 
-const MAN = "#6AA6FF";
-const WOMAN = "#FF7A9C";
+const MAN = "#2F63C4";
+const WOMAN = "#C0446E";
 
 /**
  * 법정 기록 — 그냥 대화창이다.
@@ -84,14 +84,24 @@ export function CourtChat({
                 )}
               </p>
 
+              {/* 당사자가 한 말은 종이에서 솟은 자기, 대리인이 한 말은 자기 편 색을
+                  아주 옅게 머금은 유리. 밝은 바탕에서는 재질만으로는 안 갈라진다 —
+                  색을 조금 타야 어느 쪽 말인지 읽기 전에 보인다. */}
               <div
                 className={`px-3.5 py-2.5 ${
                   party ? "nm" : "glass-2"
-                } ${left ? "rounded-[15px] rounded-tl-[5px]" : "rounded-[15px] rounded-tr-[5px]"}`}
-                style={{
-                  borderColor: `${tone}33`,
-                  boxShadow: party ? undefined : `inset 2px 0 0 ${tone}66`,
-                }}
+                } ${left ? "rounded-[16px] rounded-tl-[6px]" : "rounded-[16px] rounded-tr-[6px]"}`}
+                style={
+                  party
+                    ? { borderColor: `${tone}2e` }
+                    : {
+                        background: `linear-gradient(150deg, ${tone}16, ${tone}0a)`,
+                        borderColor: `${tone}33`,
+                        boxShadow: `inset 0 1px 0 var(--lip-soft), inset ${
+                          left ? "2.5px" : "-2.5px"
+                        } 0 0 ${tone}80`,
+                      }
+                }
               >
                 <p className="text-[14px] leading-[1.72] text-t1 break-keep whitespace-pre-wrap">
                   {msg.text}
@@ -176,7 +186,7 @@ function JuryCard({ jurors, man }: { jurors: Juror[]; man: string }) {
             <span className="font-mono text-[13px] font-bold text-t1 w-[26px] shrink-0 text-right pt-[1px] sm:pt-0">
               {j.m}
             </span>
-            <span className="w-[42px] sm:w-[54px] h-[4px] rounded-full overflow-hidden flex shrink-0 bg-white/[.06] mt-[7px] sm:mt-0">
+            <span className="w-[42px] sm:w-[54px] h-[4px] rounded-full overflow-hidden flex shrink-0 track mt-[7px] sm:mt-0">
               <span className="bar-fill shrink-0" style={{ width: `${j.m}%`, background: MAN }} />
               <span className="flex-1" style={{ background: WOMAN }} />
             </span>

@@ -1,46 +1,167 @@
 @import "tailwindcss";
 
 /* ────────────────────────────────────────────────────────────
-   멀티탭 — 액체 유리 + 뉴모피즘.
+   멀티탭 — 온기(溫氣).
+
+   화면은 판이 아니라 빛이 지나가는 종이다.
+   아래 어딘가에 따뜻한 광원이 하나 있고, 위에서는 차가운 진주빛이
+   들어온다. 그 사이에 유리를 띄운다.
 
    재료는 두 가지뿐이다.
    유리(glass) — 떠 있는 것. 패널, 팝오버, 입력창.
-   금속(nm)   — 눌리는 것. 버튼, 명패, 토글.
+   자기(nm)   — 놓여 있는 것. 눌린 자리, 본인이 직접 한 말, 명패.
 
-   색으로 꾸미지 않는다. 화면은 거의 무채색이고, 색은 역할을 구분할 때만
-   아주 옅게 쓴다. 강조는 그라데이션이 아니라 빛의 각도로 만든다 —
-   위쪽 테두리에 걸리는 반사, 유리 안쪽의 옅은 발광, 금속의 융기.
+   밤에도 같은 집이어야 한다. 어두워질 때 파란 슬레이트로 가지 않는다 —
+   광원을 줄이고 종이를 태울 뿐이다. 그래서 다크도 따뜻하다.
 
-   움직임은 느리게. 무엇이 생기고 있는지 눈으로 따라갈 수 있어야 한다.
+   색은 전부 변수를 거친다. 표에서 값 하나만 바꾸면 낮과 밤이 갈린다.
+   ──────────────────────────────────────────────────────────── */
+
+/* ── 낮 ─────────────────────────────────────────────────────
+   Tailwind 유틸리티(text-t1, border-line…)가 물어보는 값들.
+   아래 [data-theme="dark"]에서 같은 이름을 덮어쓰면 유틸리티가
+   통째로 따라온다.
    ──────────────────────────────────────────────────────────── */
 @theme {
-  --color-void: #06070b;
-  --color-panel: #0a0c12;
-  --color-raise: #0e1119;
+  --color-void: #f3ede5; /* 종이 */
+  --color-panel: #faf6f0;
+  --color-raise: #fffdf9;
 
-  --color-t1: #f4f6fa; /* 본문 */
-  --color-t2: #aeb6c4; /* 보조 */
-  --color-t3: #737c8c; /* 라벨·메타 */
-  --color-t4: #4c5462; /* 플레이스홀더 */
+  --color-t1: #241f1a; /* 본문 */
+  --color-t2: #554c43; /* 보조 */
+  --color-t3: #6f6357; /* 라벨·메타 */
+  --color-t4: #7f7266; /* 플레이스홀더 */
 
-  --color-line: rgba(255, 255, 255, 0.1);
-  --color-line-2: rgba(255, 255, 255, 0.058);
+  --color-line: rgba(88, 62, 36, 0.16);
+  --color-line-2: rgba(88, 62, 36, 0.085);
 
-  --color-accent: #9fc0ff;
-  --color-gold: #e0bd7d; /* 법정 — 놋쇠 */
-  --color-blood: #ff6b6b; /* 19금 — 봉인 */
+  --color-accent: #b4562a; /* 잉걸 — 주 동작 */
+  --color-gold: #8e5f18; /* 법정 — 놋쇠 */
+  --color-blood: #b5352d; /* 19금 — 봉인 */
 
-  --color-ok: #6fd8a8;
-  --color-warn: #f0b968;
-  --color-bad: #f08a8a;
+  --color-ok: #15734e;
+  --color-warn: #9a5f0b;
+  --color-bad: #b5352d;
 
-  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
-    "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
-  --font-serif: "Nanum Myeongjo", "Apple SD Gothic Neo", Batang, serif;
+  --font-sans: "Plus Jakarta Sans", "Pretendard Variable", Pretendard, -apple-system,
+    BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-serif: "Newsreader", "Nanum Myeongjo", "Apple SD Gothic Neo", Batang, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --ease-glass: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 재료 — Tailwind가 모르는 것들. 유리의 두께, 그늘의 색, 손이 닿은 자국. */
+:root {
+  /* 그늘은 검정이 아니라 갈색이다. 이 한 줄이 화면 전체의 온도를 정한다 */
+  --shadow-warm: 93, 64, 38;
+
+  /* 유리 — 밝은 바탕에서는 바탕보다 밝게 채운다 */
+  --g1-top: rgba(255, 255, 255, 0.66);
+  --g1-bot: rgba(255, 255, 255, 0.42);
+  --g2: rgba(255, 255, 255, 0.42);
+  --g3-top: rgba(255, 255, 255, 0.62);
+  --g3-bot: rgba(255, 255, 255, 0.38);
+  --sheet-top: rgba(255, 255, 255, 0.42);
+  --sheet-mid: rgba(255, 255, 255, 0.2);
+  --sheet-bot: rgba(255, 255, 255, 0.1);
+  --modal-top: rgba(255, 253, 250, 0.99);
+  --modal-bot: rgba(251, 246, 238, 0.985);
+
+  --edge: rgba(255, 255, 255, 0.6);
+  --edge-2: rgba(255, 255, 255, 0.55);
+  --edge-3: rgba(255, 255, 255, 0.7);
+  --lip: rgba(255, 255, 255, 0.95); /* 위쪽 모서리에 걸리는 빛 */
+  --lip-soft: rgba(255, 255, 255, 0.75);
+  --sat: 168%;
+
+  /* 자기 — 종이와 같은 재질이 솟거나 눌린 것 */
+  --nm-top: #fffdfa;
+  --nm-bot: #f2eae0;
+  --nm-in-top: #ece4d8;
+  --nm-in-bot: #f7f1e8;
+  --nm-glow: rgba(255, 255, 255, 0.9);
+
+  /* 손이 닿은 자국 — 밝은 바탕에서는 흙색을 눌러 넣는다 */
+  --tint: 88, 62, 36;
+  --scrim: rgba(64, 44, 26, 0.42);
+  --band: rgba(255, 255, 255, 0.44); /* 살짝 들린 띠 */
+  --stick: rgba(250, 246, 240, 0.93); /* 고정된 머리의 바닥 */
+
+  /* 지나가는 빛 */
+  --sheen: rgba(255, 255, 255, 0.72);
+  --sheen-2: rgba(255, 246, 232, 0.28);
+
+  --grain: 0.4;
+  --grain-blend: multiply;
+
+  color-scheme: light;
+}
+
+/* ── 밤 ─────────────────────────────────────────────────────
+   광원을 끄지 않는다. 줄인다. 종이가 타서 검어질 뿐 색은 그대로다.
+   ──────────────────────────────────────────────────────────── */
+:root[data-theme="dark"] {
+  --color-void: #16130f;
+  --color-panel: #1c1815;
+  --color-raise: #221d19;
+
+  --color-t1: #f7f2ea;
+  --color-t2: #cabfb1;
+  --color-t3: #a1958a; /* 4.5:1 이상 */
+  --color-t4: #8f8377;
+
+  --color-line: rgba(255, 238, 214, 0.15);
+  --color-line-2: rgba(255, 238, 214, 0.08);
+
+  --color-accent: #f0a45a;
+  --color-gold: #dcb066;
+  --color-blood: #ff8a80;
+
+  --color-ok: #5fd3a0;
+  --color-warn: #f0b968;
+  --color-bad: #ff8a80;
+
+  --shadow-warm: 0, 0, 0;
+
+  /* 어두운 바탕에서 유리는 반대로 만든다 — 아주 옅게 채우고 세게 흐린다 */
+  --g1-top: rgba(255, 244, 230, 0.075);
+  --g1-bot: rgba(255, 244, 230, 0.035);
+  --g2: rgba(255, 244, 230, 0.045);
+  --g3-top: rgba(255, 244, 230, 0.085);
+  --g3-bot: rgba(255, 244, 230, 0.04);
+  --sheet-top: rgba(255, 244, 230, 0.06);
+  --sheet-mid: rgba(255, 244, 230, 0.03);
+  --sheet-bot: rgba(255, 244, 230, 0.015);
+  --modal-top: rgba(41, 34, 29, 0.995);
+  --modal-bot: rgba(31, 26, 22, 0.99);
+
+  --edge: rgba(255, 238, 214, 0.13);
+  --edge-2: rgba(255, 238, 214, 0.09);
+  --edge-3: rgba(255, 238, 214, 0.16);
+  --lip: rgba(255, 240, 220, 0.14);
+  --lip-soft: rgba(255, 240, 220, 0.08);
+  --sat: 150%;
+
+  --nm-top: #221d18;
+  --nm-bot: #17130f;
+  --nm-in-top: #12100d;
+  --nm-in-bot: #1b1713;
+  --nm-glow: rgba(255, 240, 220, 0.045);
+
+  --tint: 255, 238, 214;
+  --scrim: rgba(8, 6, 4, 0.62);
+  --band: rgba(255, 244, 230, 0.045);
+  --stick: rgba(26, 22, 18, 0.94);
+
+  --sheen: rgba(255, 244, 230, 0.14);
+  --sheen-2: rgba(255, 244, 230, 0.05);
+
+  --grain: 0.5;
+  --grain-blend: overlay;
+
+  color-scheme: dark;
 }
 
 html,
@@ -54,83 +175,187 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  letter-spacing: -0.014em;
+  letter-spacing: -0.011em;
   overscroll-behavior: none;
 }
 
-/* ── 배경 — 거의 안 보일 만큼 옅게, 아주 느리게 ─────────────── */
+/* 라틴과 한글을 한 줄에 섞어 쓴다. 라틴은 Jakarta가, 한글은 Pretendard가
+   받는다 — 브라우저가 글자마다 알아서 고른다. 한글에는 자간을 조금 더 준다. */
+:lang(ko) {
+  letter-spacing: -0.015em;
+}
+
+/* ── 빛 ─────────────────────────────────────────────────────
+   광원 셋이 아주 느리게 돈다. 밝은 종이 위에서는 진하게 넣어야
+   비로소 빛으로 보인다. 대신 흐리기를 크게 잡아 경계를 지운다.
+   ──────────────────────────────────────────────────────────── */
 .mesh {
   position: fixed;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  background:
+    linear-gradient(0deg, rgba(232, 141, 52, 0.34) 0%, rgba(232, 141, 52, 0) 34%),
+    radial-gradient(108% 68% at 68% 112%, rgba(236, 152, 62, 0.72) 0%, transparent 62%),
+    radial-gradient(92% 58% at 14% -14%, rgba(198, 205, 240, 0.75) 0%, transparent 60%),
+    linear-gradient(168deg, #f8f3eb 0%, #f2ebe1 44%, #f7e9d6 100%);
+  transition: background 1600ms var(--ease-glass);
 }
 .mesh::before,
 .mesh::after {
   content: "";
   position: absolute;
-  width: 72vmax;
-  height: 72vmax;
+  width: 74vmax;
+  height: 74vmax;
   border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.26;
+  filter: blur(110px);
   will-change: transform;
 }
 .mesh::before {
-  top: -30vmax;
-  left: -20vmax;
-  background: radial-gradient(circle at 30% 30%, #24407e 0%, transparent 64%);
+  top: -34vmax;
+  left: -22vmax;
+  opacity: 0.58;
+  background: radial-gradient(circle at 34% 34%, #cbd2ee 0%, rgba(203, 210, 238, 0) 66%);
   animation: drift-a 68s var(--ease-glass) infinite alternate;
 }
 .mesh::after {
-  bottom: -32vmax;
-  right: -22vmax;
-  background: radial-gradient(circle at 60% 60%, #43306b 0%, transparent 66%);
+  bottom: -36vmax;
+  right: -24vmax;
+  opacity: 0.72;
+  background: radial-gradient(circle at 58% 58%, #f4b871 0%, rgba(244, 184, 113, 0) 66%);
   animation: drift-b 84s var(--ease-glass) infinite alternate;
 }
 .mesh > i {
   position: absolute;
-  left: 44%;
-  bottom: -34vmax;
-  width: 60vmax;
-  height: 60vmax;
+  left: 40%;
+  bottom: -32vmax;
+  width: 58vmax;
+  height: 58vmax;
   border-radius: 50%;
-  filter: blur(130px);
-  opacity: 0.16;
-  background: radial-gradient(circle, #14555e 0%, transparent 68%);
+  filter: blur(120px);
+  opacity: 0.4;
+  background: radial-gradient(circle, #bcded0 0%, rgba(188, 222, 208, 0) 68%);
   animation: drift-c 96s var(--ease-glass) infinite alternate;
 }
-
-/* 배경색이 모드를 따라간다 — 법정에 들어가면 공기가 따뜻해진다 */
 .mesh::before,
 .mesh::after,
 .mesh > i {
-  transition: background 1400ms var(--ease-glass), opacity 1400ms var(--ease-glass);
-}
-.mesh.court::before {
-  background: radial-gradient(circle at 30% 30%, #6b4a1c 0%, transparent 64%);
-  opacity: 0.3;
-}
-.mesh.court::after {
-  background: radial-gradient(circle at 60% 60%, #3a2340 0%, transparent 66%);
-}
-.mesh.court > i {
-  background: radial-gradient(circle, #5e3a14 0%, transparent 68%);
-  opacity: 0.2;
+  transition: background 1600ms var(--ease-glass), opacity 1600ms var(--ease-glass);
 }
 
-/* 위로방은 조금 더 부드럽고 따뜻하게 */
+/* 모드마다 공기의 온도가 다르다 — 아주 느리게 옮겨간다 */
+.mesh.court {
+  background:
+    radial-gradient(120% 62% at 62% 118%, rgba(214, 150, 52, 0.56) 0%, transparent 64%),
+    radial-gradient(96% 54% at 18% -12%, rgba(226, 208, 176, 0.6) 0%, transparent 62%),
+    linear-gradient(168deg, #f8f2e6 0%, #f4ecdd 46%, #f3e6d0 100%);
+}
+.mesh.court::before {
+  background: radial-gradient(circle at 34% 34%, #e6d3ab 0%, rgba(230, 211, 171, 0) 66%);
+  opacity: 0.62;
+}
+.mesh.court::after {
+  background: radial-gradient(circle at 58% 58%, #e5a648 0%, rgba(229, 166, 72, 0) 66%);
+  opacity: 0.66;
+}
+.mesh.court > i {
+  background: radial-gradient(circle, #d8c08e 0%, rgba(216, 192, 142, 0) 68%);
+  opacity: 0.34;
+}
+
+.mesh.comfort {
+  background:
+    radial-gradient(120% 62% at 62% 118%, rgba(238, 154, 140, 0.44) 0%, transparent 64%),
+    radial-gradient(96% 54% at 18% -12%, rgba(222, 206, 240, 0.6) 0%, transparent 62%),
+    linear-gradient(168deg, #faf1ee 0%, #f6ece8 46%, #f8ebe6 100%);
+}
 .mesh.comfort::before {
-  background: radial-gradient(circle at 30% 30%, #6b2b4a 0%, transparent 64%);
-  opacity: 0.24;
+  background: radial-gradient(circle at 34% 34%, #ded0f0 0%, rgba(222, 208, 240, 0) 66%);
+  opacity: 0.56;
 }
 .mesh.comfort::after {
-  background: radial-gradient(circle at 60% 60%, #33305e 0%, transparent 66%);
+  background: radial-gradient(circle at 58% 58%, #f3a6a0 0%, rgba(243, 166, 160, 0) 66%);
+  opacity: 0.56;
 }
 .mesh.comfort > i {
-  background: radial-gradient(circle, #5a2e46 0%, transparent 68%);
-  opacity: 0.18;
+  background: radial-gradient(circle, #f2c4b0 0%, rgba(242, 196, 176, 0) 68%);
+  opacity: 0.38;
+}
+
+.mesh.redteam {
+  background:
+    radial-gradient(120% 62% at 62% 118%, rgba(226, 118, 74, 0.46) 0%, transparent 64%),
+    radial-gradient(96% 54% at 18% -12%, rgba(212, 206, 226, 0.56) 0%, transparent 62%),
+    linear-gradient(168deg, #f9f1ea 0%, #f6ebe2 46%, #f8e8dc 100%);
+}
+.mesh.redteam::after {
+  background: radial-gradient(circle at 58% 58%, #ec9163 0%, rgba(236, 145, 99, 0) 66%);
+  opacity: 0.6;
+}
+.mesh.redteam > i {
+  background: radial-gradient(circle, #e3b59a 0%, rgba(227, 181, 154, 0) 68%);
+  opacity: 0.32;
+}
+
+.mesh.inbiz {
+  background:
+    radial-gradient(120% 62% at 62% 118%, rgba(120, 196, 168, 0.42) 0%, transparent 64%),
+    radial-gradient(96% 54% at 18% -12%, rgba(206, 216, 238, 0.62) 0%, transparent 62%),
+    linear-gradient(168deg, #f4f4ee 0%, #f0f2ea 46%, #edf2ea 100%);
+}
+.mesh.inbiz::after {
+  background: radial-gradient(circle at 58% 58%, #8fcfb2 0%, rgba(143, 207, 178, 0) 66%);
+  opacity: 0.5;
+}
+.mesh.inbiz > i {
+  background: radial-gradient(circle, #a8d8e0 0%, rgba(168, 216, 224, 0) 68%);
+  opacity: 0.36;
+}
+
+/* 밤 — 같은 광원을 아주 낮춰 켠다. 색은 그대로고 밝기만 내려간다 */
+:root[data-theme="dark"] .mesh {
+  background:
+    linear-gradient(0deg, rgba(214, 118, 34, 0.2) 0%, rgba(214, 118, 34, 0) 36%),
+    radial-gradient(108% 68% at 68% 112%, rgba(198, 112, 38, 0.3) 0%, transparent 62%),
+    radial-gradient(92% 58% at 14% -14%, rgba(96, 104, 150, 0.3) 0%, transparent 60%),
+    linear-gradient(168deg, #191512 0%, #16130f 44%, #1d1710 100%);
+}
+:root[data-theme="dark"] .mesh::before {
+  background: radial-gradient(circle at 34% 34%, #4a5177 0%, rgba(74, 81, 119, 0) 66%);
+  opacity: 0.36;
+}
+:root[data-theme="dark"] .mesh::after {
+  background: radial-gradient(circle at 58% 58%, #b06f24 0%, rgba(176, 111, 36, 0) 66%);
+  opacity: 0.4;
+}
+:root[data-theme="dark"] .mesh > i {
+  background: radial-gradient(circle, #2f6b5c 0%, rgba(47, 107, 92, 0) 68%);
+  opacity: 0.26;
+}
+:root[data-theme="dark"] .mesh.court {
+  background:
+    radial-gradient(120% 62% at 62% 118%, rgba(190, 128, 30, 0.32) 0%, transparent 64%),
+    radial-gradient(96% 54% at 18% -12%, rgba(120, 100, 62, 0.3) 0%, transparent 62%),
+    linear-gradient(168deg, #1a160e 0%, #17130d 46%, #1f180d 100%);
+}
+:root[data-theme="dark"] .mesh.comfort {
+  background:
+    radial-gradient(120% 62% at 62% 118%, rgba(186, 78, 88, 0.3) 0%, transparent 64%),
+    radial-gradient(96% 54% at 18% -12%, rgba(104, 84, 130, 0.32) 0%, transparent 62%),
+    linear-gradient(168deg, #1a1214 0%, #171113 46%, #1d1215 100%);
+}
+:root[data-theme="dark"] .mesh.redteam {
+  background:
+    radial-gradient(120% 62% at 62% 118%, rgba(198, 78, 42, 0.32) 0%, transparent 64%),
+    radial-gradient(96% 54% at 18% -12%, rgba(92, 84, 108, 0.28) 0%, transparent 62%),
+    linear-gradient(168deg, #1a1310 0%, #17110e 46%, #1f120c 100%);
+}
+:root[data-theme="dark"] .mesh.inbiz {
+  background:
+    radial-gradient(120% 62% at 62% 118%, rgba(46, 138, 108, 0.3) 0%, transparent 64%),
+    radial-gradient(96% 54% at 18% -12%, rgba(88, 102, 138, 0.3) 0%, transparent 62%),
+    linear-gradient(168deg, #12160f 0%, #10140f 46%, #0f1712 100%);
 }
 
 @keyframes drift-a {
@@ -143,47 +368,90 @@ body {
   to { transform: translate3d(-8vmax, -5vmax, 0) scale(1.14); }
 }
 
-/* 아주 옅은 입자 — 유리 표면이 완벽하게 매끈하면 오히려 가짜로 보인다 */
+/* 종이 결 — 그라데이션만 있으면 플라스틱처럼 보인다 */
 .grain {
   position: fixed;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  opacity: 0.15;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.5'/></svg>");
+  opacity: var(--grain);
+  mix-blend-mode: var(--grain-blend);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.36'/></svg>");
 }
 
 /* ── 유리 ────────────────────────────────────────────────────
+   밝은 바탕 위의 유리는 어두운 바탕 위의 유리와 정반대로 만든다.
+   바탕보다 밝게 채우고, 흐리기와 함께 채도를 올린다. 채도를 올리지
+   않으면 그냥 흰 상자가 된다 — 뒤가 비쳐야 유리다.
+
    접두사는 직접 쓰지 않는다 — 표준 속성과 둘 다 쓰면 빌드가
    표준 쪽을 지우고 -webkit- 하나만 남겨서 블러가 안 걸린다.
    ──────────────────────────────────────────────────────────── */
 .glass {
-  background: rgba(255, 255, 255, 0.042);
-  backdrop-filter: blur(30px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.088);
+  background: linear-gradient(154deg, var(--g1-top) 0%, var(--g1-bot) 100%);
+  backdrop-filter: blur(26px) saturate(var(--sat));
+  border: 1px solid var(--edge);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.16),
-    0 22px 52px -30px rgba(0, 0, 0, 0.92);
+    inset 0 1px 0 var(--lip),
+    inset 0 -1px 0 rgba(var(--shadow-warm), 0.05),
+    0 1px 2px rgba(var(--shadow-warm), 0.05),
+    0 20px 46px -28px rgba(var(--shadow-warm), 0.3);
 }
 .glass-2 {
-  background: rgba(255, 255, 255, 0.026);
-  backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.058);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
-}
-/* 가장 두꺼운 유리 — 다른 것 위에 확실히 떠야 할 때 */
-.glass-3 {
-  background: rgba(16, 19, 27, 0.74);
-  backdrop-filter: blur(46px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.11);
+  background: var(--g2);
+  backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid var(--edge-2);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.13),
-    0 40px 90px -40px rgba(0, 0, 0, 1);
+    inset 0 1px 0 var(--lip-soft),
+    0 2px 8px -4px rgba(var(--shadow-warm), 0.1);
+}
+/* 가장 두꺼운 유리 — 두껍다는 건 불투명하다는 뜻이 아니다.
+   더 세게 흐리고 채도를 더 올린다. */
+.glass-3 {
+  background: linear-gradient(158deg, var(--g3-top) 0%, var(--g3-bot) 100%);
+  backdrop-filter: blur(48px) saturate(200%);
+  border: 1px solid var(--edge-3);
+  box-shadow:
+    inset 0 1px 0 var(--lip),
+    0 2px 4px rgba(var(--shadow-warm), 0.05),
+    0 34px 72px -36px rgba(var(--shadow-warm), 0.4);
 }
 
-/* 위쪽 모서리에 걸리는 반사 — 유리가 두껍게 보이는 이유 */
+/* 위에 뜨는 것 — ⌘K, 확인 창, 설정.
+   다른 유리는 뒤가 비쳐야 하지만 이건 반대다. 모든 것 위에 있다는 걸
+   먼저 보여야 하므로 두껍게 채우고 그늘을 깊게 깐다. */
+.glass-modal {
+  background: linear-gradient(158deg, var(--modal-top) 0%, var(--modal-bot) 100%);
+  backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--edge-3);
+  box-shadow:
+    inset 0 1px 0 var(--lip),
+    0 4px 10px -4px rgba(var(--shadow-warm), 0.18),
+    0 48px 90px -32px rgba(var(--shadow-warm), 0.55);
+}
+
+/* 본문 판.
+   화면의 대부분을 덮는 유리라서 다른 유리처럼 채우면 그냥 흰 판이 된다.
+   여기는 제일 얇게 채우고 제일 세게 흐린다 — 뒤의 빛이 판을 통과해서
+   보여야 비로소 떠 있는 것이 된다. 이 판 하나가 배경을 살리고 죽인다. */
+.sheet {
+  background: linear-gradient(
+    158deg,
+    var(--sheet-top) 0%,
+    var(--sheet-mid) 44%,
+    var(--sheet-bot) 100%
+  );
+  backdrop-filter: blur(40px) saturate(160%);
+  border: 1px solid var(--edge-2);
+  box-shadow:
+    inset 0 1px 0 var(--lip),
+    0 2px 4px rgba(var(--shadow-warm), 0.04),
+    0 40px 90px -44px rgba(var(--shadow-warm), 0.45);
+}
+
+/* 가장자리에서 갈라지는 빛.
+   진짜 유리는 테두리에서 색을 쪼갠다 — 복숭아, 라일락, 박하.
+   이 한 줄이 있고 없고가 유리와 흰 상자를 가른다. */
 .glass-lit {
   position: relative;
 }
@@ -194,107 +462,120 @@ body {
   border-radius: inherit;
   padding: 1px;
   background: linear-gradient(
-    150deg,
-    rgba(255, 255, 255, 0.34) 0%,
-    rgba(255, 255, 255, 0.06) 34%,
-    transparent 62%
+    138deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(255, 213, 168, 0.72) 15%,
+    rgba(255, 255, 255, 0.45) 31%,
+    rgba(203, 211, 245, 0.6) 51%,
+    rgba(255, 255, 255, 0.24) 68%,
+    rgba(184, 224, 210, 0.46) 85%,
+    rgba(255, 255, 255, 0.66) 100%
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
+  opacity: 1;
+}
+/* 밤에는 같은 무지개를 훨씬 낮춰 켠다 — 그대로 두면 테두리만 둥둥 뜬다 */
+:root[data-theme="dark"] .glass-lit::before {
+  opacity: 0.34;
 }
 
-/* ── 금속 — 뉴모피즘 ─────────────────────────────────────────
-   유리는 떠 있고, 금속은 판에서 솟아 있다. 누르면 안으로 들어간다.
-   그림자를 두 방향으로 쓴다: 왼쪽 위는 빛, 오른쪽 아래는 그늘.
+/* ── 자기(瓷器) ──────────────────────────────────────────────
+   유리가 떠 있다면 이쪽은 놓여 있다. 종이와 같은 재질이 조금 솟거나
+   눌린 것. 누른 자리, 본인이 직접 한 말, 명패에 쓴다.
    ──────────────────────────────────────────────────────────── */
 .nm {
-  background: linear-gradient(148deg, #12151d 0%, #0a0c12 100%);
-  border: 1px solid rgba(255, 255, 255, 0.055);
+  background: linear-gradient(150deg, var(--nm-top) 0%, var(--nm-bot) 100%);
+  border: 1px solid var(--edge-3);
   box-shadow:
-    -5px -5px 14px rgba(255, 255, 255, 0.028),
-    6px 7px 18px rgba(0, 0, 0, 0.62),
-    inset 0 1px 0 rgba(255, 255, 255, 0.075);
+    -4px -4px 12px var(--nm-glow),
+    5px 7px 18px rgba(var(--shadow-warm), 0.14),
+    inset 0 1px 0 var(--lip);
 }
 .nm-in {
-  background: linear-gradient(148deg, #08090e 0%, #0c0f16 100%);
-  border: 1px solid rgba(0, 0, 0, 0.5);
+  background: linear-gradient(150deg, var(--nm-in-top) 0%, var(--nm-in-bot) 100%);
+  border: 1px solid rgba(var(--shadow-warm), 0.09);
   box-shadow:
-    inset 4px 5px 12px rgba(0, 0, 0, 0.75),
-    inset -3px -3px 10px rgba(255, 255, 255, 0.026);
+    inset 3px 4px 10px rgba(var(--shadow-warm), 0.15),
+    inset -2px -3px 8px var(--nm-glow);
 }
 
-/* 눌리는 금속 — 기본 동작 */
+/* 눌리는 자기 — 부 동작 */
 .nm-btn {
-  background: linear-gradient(148deg, #141822 0%, #0b0e15 100%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: linear-gradient(150deg, var(--nm-top) 0%, var(--nm-bot) 100%);
+  border: 1px solid var(--edge-3);
   box-shadow:
-    -4px -4px 12px rgba(255, 255, 255, 0.026),
-    5px 6px 16px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+    -3px -3px 10px var(--nm-glow),
+    4px 6px 16px rgba(var(--shadow-warm), 0.13),
+    inset 0 1px 0 var(--lip);
   transition:
     transform 280ms var(--ease-glass),
     box-shadow 280ms var(--ease-glass),
-    background 280ms var(--ease-glass),
-    border-color 280ms var(--ease-glass);
+    filter 280ms var(--ease-glass);
 }
 .nm-btn:hover:not(:disabled) {
-  background: linear-gradient(148deg, #1a1f2c 0%, #0e121a 100%);
-  border-color: rgba(255, 255, 255, 0.12);
+  filter: brightness(1.03);
   transform: translateY(-1px);
   box-shadow:
-    -5px -5px 14px rgba(255, 255, 255, 0.034),
-    7px 9px 22px rgba(0, 0, 0, 0.66),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    -4px -4px 12px var(--nm-glow),
+    6px 9px 22px rgba(var(--shadow-warm), 0.17),
+    inset 0 1px 0 var(--lip);
 }
 .nm-btn:active:not(:disabled) {
   transform: translateY(1px) scale(0.988);
+  filter: brightness(0.97);
   box-shadow:
-    inset 3px 4px 10px rgba(0, 0, 0, 0.72),
-    inset -2px -2px 8px rgba(255, 255, 255, 0.022);
+    inset 3px 4px 9px rgba(var(--shadow-warm), 0.16),
+    inset -2px -2px 7px var(--nm-glow);
 }
 .nm-btn:disabled {
-  opacity: 0.32;
+  opacity: 0.4;
   box-shadow: none;
 }
 
 /* 눌리는 유리 — 가벼운 동작 */
 .btn {
-  border-radius: 11px;
-  background: rgba(255, 255, 255, 0.045);
-  border: 1px solid rgba(255, 255, 255, 0.085);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: var(--g2);
+  border: 1px solid var(--edge-2);
+  box-shadow:
+    inset 0 1px 0 var(--lip-soft),
+    0 2px 6px -3px rgba(var(--shadow-warm), 0.14);
   transition:
     background 260ms var(--ease-glass),
     border-color 260ms var(--ease-glass),
+    box-shadow 260ms var(--ease-glass),
     transform 260ms var(--ease-glass);
 }
 .btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.082);
-  border-color: rgba(255, 255, 255, 0.14);
+  background: var(--g1-top);
+  border-color: var(--edge-3);
   transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 var(--lip),
+    0 8px 18px -10px rgba(var(--shadow-warm), 0.28);
 }
 .btn:active:not(:disabled) {
   transform: translateY(0.5px) scale(0.99);
+  box-shadow: inset 0 2px 5px rgba(var(--shadow-warm), 0.12);
 }
 .btn:disabled {
-  opacity: 0.34;
+  opacity: 0.42;
 }
 
-/* 주 동작 — 색이 아니라 밝기로 세운다 */
+/* 주 동작 — 화면의 광원을 그대로 옮겨 담는다.
+   흰 글자를 얹지 않는다. 잉걸 위에는 탄 갈색이 올라가야 뜨거워 보인다. */
 .btn-solid {
-  border-radius: 11px;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.94) 0%,
-    rgba(233, 238, 248, 0.86) 100%
-  );
-  color: #0b0d13;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f2a959 0%, #d2731f 100%);
+  color: #3a1e03;
+  border: 1px solid rgba(255, 226, 186, 0.6);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 8px 22px -12px rgba(0, 0, 0, 0.8);
+    inset 0 1px 0 rgba(255, 244, 226, 0.85),
+    inset 0 -2px 6px rgba(120, 58, 8, 0.22),
+    0 8px 20px -10px rgba(190, 104, 30, 0.55);
   transition:
     filter 260ms var(--ease-glass),
     opacity 260ms var(--ease-glass),
@@ -302,43 +583,45 @@ body {
     box-shadow 260ms var(--ease-glass);
 }
 .btn-solid:hover:not(:disabled) {
-  filter: brightness(1.06);
+  filter: brightness(1.05) saturate(1.04);
   transform: translateY(-1px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 14px 30px -14px rgba(0, 0, 0, 0.9);
+    inset 0 1px 0 rgba(255, 244, 226, 0.9),
+    inset 0 -2px 6px rgba(120, 58, 8, 0.22),
+    0 14px 28px -12px rgba(190, 104, 30, 0.62);
 }
 .btn-solid:active:not(:disabled) {
   transform: translateY(1px) scale(0.985);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.28);
+  box-shadow: inset 0 2px 7px rgba(120, 58, 8, 0.3);
 }
 .btn-solid:disabled {
-  opacity: 0.24;
+  opacity: 0.34;
+  filter: saturate(0.5);
 }
 
 /* 놋쇠 — 법정에서만 쓰는 주 동작 */
 .btn-brass {
-  border-radius: 11px;
-  background: linear-gradient(180deg, #f2ddb0 0%, #c39a54 100%);
-  color: #241a06;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #dcb066 0%, #a97826 100%);
+  color: #2a1b04;
   border: 1px solid rgba(255, 240, 205, 0.62);
   box-shadow:
-    inset 0 1px 0 rgba(255, 252, 240, 0.85),
-    inset 0 -2px 6px rgba(120, 80, 10, 0.35),
-    0 10px 26px -14px rgba(190, 140, 50, 0.7);
+    inset 0 1px 0 rgba(255, 250, 232, 0.85),
+    inset 0 -2px 6px rgba(90, 60, 8, 0.28),
+    0 10px 24px -12px rgba(150, 108, 34, 0.6);
   transition:
     filter 260ms var(--ease-glass),
     transform 260ms var(--ease-glass);
 }
 .btn-brass:hover:not(:disabled) {
-  filter: brightness(1.07);
+  filter: brightness(1.06);
   transform: translateY(-1px);
 }
 .btn-brass:active:not(:disabled) {
   transform: translateY(1px) scale(0.985);
 }
 .btn-brass:disabled {
-  opacity: 0.3;
+  opacity: 0.36;
 }
 
 /* 지나가는 빛 — 마우스를 올리면 표면을 한 번 훑는다 */
@@ -354,8 +637,8 @@ body {
   background: linear-gradient(
     104deg,
     transparent 38%,
-    rgba(255, 255, 255, 0.1) 48%,
-    rgba(255, 255, 255, 0.02) 56%,
+    var(--sheen) 48%,
+    var(--sheen-2) 56%,
     transparent 64%
   );
   transform: translateX(-120%);
@@ -367,12 +650,46 @@ body {
   transform: translateX(120%);
 }
 
+/* ── 손이 닿는 자리 ──────────────────────────────────────────
+   밝은 바탕에서는 흙색을 눌러 넣고, 어두운 바탕에서는 빛을 얹는다.
+   --tint 하나만 뒤집히면 둘 다 알아서 맞는다.
+   ──────────────────────────────────────────────────────────── */
+.press {
+  transition: background-color 200ms var(--ease-glass), color 200ms var(--ease-glass);
+}
+.press:hover {
+  background-color: rgba(var(--tint), 0.06);
+}
+.press:active {
+  background-color: rgba(var(--tint), 0.11);
+}
+
+/* 골라진 줄 */
+.sel { background-color: rgba(var(--tint), 0.07); }
+.sel-soft:hover { background-color: rgba(var(--tint), 0.04); }
+
+/* 눈금·구분선·막대 바닥 — border가 아니라 배경으로 그리는 것들 */
+.rule { background-color: rgba(var(--tint), 0.2); }
+.rule-2 { background-color: rgba(var(--tint), 0.13); }
+.track { background-color: rgba(var(--tint), 0.1); }
+.track-2 { background-color: rgba(var(--tint), 0.07); }
+
+/* 살짝 들린 띠 — 질문 줄, 종합 카드가 앉는 자리 */
+.band { background-color: var(--band); }
+
+/* 고정된 머리의 바닥 — 여기만은 유리가 아니라 벽이어야 한다.
+   비치면 본문이 머리 밑으로 지나가는 게 보인다. */
+.stick { background-color: var(--stick); }
+
+/* 뒤를 덮는 판 — 검정 장막이 아니라 따뜻한 안개 */
+.scrim { background-color: var(--scrim); }
+
 /* ── 한국어 본문 ─────────────────────────────────────────── */
 .prose-ko {
   font-size: 14.5px;
-  line-height: 1.8;
+  line-height: 1.82;
   color: var(--color-t2);
-  letter-spacing: -0.014em;
+  letter-spacing: -0.012em;
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
@@ -381,10 +698,20 @@ body {
   font-weight: 600;
 }
 
-/* 판결문 — 명조. 법원에서 오는 종이는 고딕이 아니다 */
+/* 판결문 — 명조. 법원에서 오는 종이는 고딕이 아니다.
+   그리고 명조는 밝은 종이 위에서 제 얼굴이 나온다. */
 .serif {
   font-family: var(--font-serif);
-  letter-spacing: -0.008em;
+  letter-spacing: -0.004em;
+  word-break: keep-all;
+}
+
+/* 큰 글씨 — 굵게 밀어붙이지 않는다. 크기와 여백으로 세운다 */
+.display {
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.28;
+  color: var(--color-t1);
   word-break: keep-all;
 }
 
@@ -407,7 +734,6 @@ body {
 }
 .slide-in-r { animation: slide-in-r 620ms var(--ease-glass) both; }
 
-/* 카드가 생길 때 — 유리가 굳는 것처럼 */
 @keyframes pop-in {
   0% { opacity: 0; transform: scale(0.86) translateY(14px); filter: blur(10px); }
   55% { opacity: 1; filter: blur(0); }
@@ -416,14 +742,12 @@ body {
 }
 .pop-in { animation: pop-in 1080ms var(--ease-glass) both; }
 
-/* 조직도 선이 그려진다 */
 @keyframes draw {
   from { stroke-dashoffset: var(--len, 400); }
   to { stroke-dashoffset: 0; }
 }
 .draw { animation: draw 1250ms var(--ease-glass) both; }
 
-/* 일하는 중인 카드 위를 아주 천천히 지나가는 빛 */
 @keyframes sweep {
   0% { transform: translateX(-140%); }
   100% { transform: translateX(340%); }
@@ -433,17 +757,11 @@ body {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(
-    100deg,
-    transparent 22%,
-    rgba(255, 255, 255, 0.07) 48%,
-    transparent 74%
-  );
+  background: linear-gradient(100deg, transparent 22%, var(--sheen) 48%, transparent 74%);
   animation: sweep 3.4s var(--ease-glass) infinite;
   pointer-events: none;
 }
 
-/* 생각하는 중 — 글자 위로 빛이 지나간다 */
 @keyframes shimmer {
   0% { background-position: 180% 0; }
   100% { background-position: -180% 0; }
@@ -451,9 +769,9 @@ body {
 .thinking {
   background: linear-gradient(
     90deg,
-    rgba(115, 124, 140, 0.85) 26%,
-    rgba(244, 246, 250, 0.95) 50%,
-    rgba(115, 124, 140, 0.85) 74%
+    var(--color-t3) 26%,
+    var(--color-t1) 50%,
+    var(--color-t3) 74%
   );
   background-size: 220% auto;
   -webkit-background-clip: text;
@@ -462,16 +780,15 @@ body {
   animation: shimmer 2.8s linear infinite;
 }
 
-/* 회의 중인 부서 · 발언 중인 당사자 */
 @keyframes pulse-ring {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(159, 192, 255, 0.3); }
-  55% { box-shadow: 0 0 0 9px rgba(159, 192, 255, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(180, 86, 42, 0.28); }
+  55% { box-shadow: 0 0 0 9px rgba(180, 86, 42, 0); }
 }
 .pulse-ring { animation: pulse-ring 3s var(--ease-glass) infinite; }
 
 @keyframes pulse-gold {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(224, 189, 125, 0.34); }
-  55% { box-shadow: 0 0 0 10px rgba(224, 189, 125, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(142, 95, 24, 0.3); }
+  55% { box-shadow: 0 0 0 10px rgba(142, 95, 24, 0); }
 }
 .pulse-gold { animation: pulse-gold 2.6s var(--ease-glass) infinite; }
 
@@ -487,8 +804,8 @@ body {
 .caret { animation: caret 1.15s steps(1, end) infinite; }
 
 @keyframes dot-step {
-  0%, 72%, 100% { opacity: 0.18; transform: translateY(0); }
-  36% { opacity: 0.92; transform: translateY(-2.5px); }
+  0%, 72%, 100% { opacity: 0.2; transform: translateY(0); }
+  36% { opacity: 0.95; transform: translateY(-2.5px); }
 }
 .dot-step { animation: dot-step 1.7s ease-in-out infinite; }
 
@@ -514,8 +831,6 @@ body {
 .gauge { animation: gauge 1900ms var(--ease-glass) both; }
 
 /* ── 법정 전용 ───────────────────────────────────────────── */
-
-/* 의사봉 — 개정할 때 한 번 내리친다 */
 @keyframes gavel-hit {
   0% { transform: rotate(-38deg) translateY(-4px); }
   38% { transform: rotate(10deg) translateY(2px); }
@@ -528,7 +843,6 @@ body {
   transform-origin: 78% 78%;
 }
 
-/* 법정이 한 번 흔들린다 */
 @keyframes court-shake {
   0%, 100% { transform: none; }
   22% { transform: translate3d(0, 2.5px, 0); }
@@ -537,7 +851,6 @@ body {
 }
 .court-shake { animation: court-shake 620ms var(--ease-glass) both; }
 
-/* 판결 도장 — 위에서 내려찍힌다 */
 @keyframes stamp {
   0% { opacity: 0; transform: scale(2.4) rotate(-26deg); filter: blur(6px); }
   55% { opacity: 1; filter: blur(0); }
@@ -547,7 +860,6 @@ body {
 }
 .stamp { animation: stamp 900ms var(--ease-glass) both; }
 
-/* 놋쇠 명패 위를 도는 빛 */
 @keyframes brass-shine {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
@@ -555,12 +867,12 @@ body {
 .brass {
   background: linear-gradient(
     100deg,
-    #8a7038 0%,
-    #d9bd85 22%,
-    #fff3d6 32%,
-    #cfae72 44%,
-    #8a7038 68%,
-    #b99a5e 100%
+    #7a5514 0%,
+    #b98f42 22%,
+    #d8b978 32%,
+    #a97826 44%,
+    #6f4d11 68%,
+    #a1802f 100%
   );
   background-size: 260% auto;
   -webkit-background-clip: text;
@@ -569,17 +881,15 @@ body {
   animation: brass-shine 7s linear infinite;
 }
 
-/* 속기록 커서 */
 @keyframes rec-blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.15; }
 }
 .rec-blink { animation: rec-blink 1.4s ease-in-out infinite; }
 
-/* 19금 봉인 — 아주 느리게 맥동 */
 @keyframes seal-throb {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.34); }
-  55% { box-shadow: 0 0 0 8px rgba(255, 107, 107, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(181, 53, 45, 0.3); }
+  55% { box-shadow: 0 0 0 8px rgba(181, 53, 45, 0); }
 }
 .seal-throb { animation: seal-throb 2.8s var(--ease-glass) infinite; }
 
@@ -591,24 +901,10 @@ body {
   pointer-events: none;
   background: radial-gradient(
     58% 78% at 50% -14%,
-    rgba(224, 189, 125, 0.16) 0%,
-    rgba(224, 189, 125, 0.045) 42%,
+    rgba(214, 160, 62, 0.2) 0%,
+    rgba(214, 160, 62, 0.06) 42%,
     transparent 72%
   );
-}
-
-/* 나무 결 — 법대 앞판 */
-.wood {
-  background:
-    linear-gradient(180deg, rgba(255, 236, 200, 0.055) 0%, transparent 40%),
-    repeating-linear-gradient(
-      92deg,
-      rgba(255, 255, 255, 0.016) 0px,
-      rgba(255, 255, 255, 0.016) 1px,
-      transparent 1px,
-      transparent 7px
-    ),
-    linear-gradient(160deg, #171208 0%, #0d0a06 100%);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -657,7 +953,6 @@ body {
   }
 }
 
-/* 서랍은 화면에 직접 붙으므로 자기 몫의 여백을 따로 챙긴다 */
 @media (max-width: 1023px) {
   .safe-drawer {
     padding-top: max(10px, env(safe-area-inset-top));
@@ -671,27 +966,54 @@ body {
 .scroll-y {
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  scrollbar-color: rgba(var(--tint), 0.24) transparent;
 }
 .scroll-y::-webkit-scrollbar { width: 10px; }
 .scroll-y::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(var(--tint), 0.2);
   border-radius: 99px;
   border: 3px solid transparent;
   background-clip: content-box;
 }
 .scroll-y::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(var(--tint), 0.32);
   background-clip: content-box;
 }
 
 .no-bar { scrollbar-width: none; }
 .no-bar::-webkit-scrollbar { display: none; }
 
-:focus-visible {
-  outline: 2px solid rgba(159, 192, 255, 0.8);
-  outline-offset: 2px;
-  border-radius: 7px;
+/* 옆으로 흐르는 줄의 끝 — 막대 없이 더 있다는 것만 알린다 */
+.fade-r {
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 26px), transparent 100%);
+  mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 26px), transparent 100%);
 }
 
-::selection { background: rgba(159, 192, 255, 0.24); }
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* 글 쓰는 칸은 자기 몸에 테를 두르지 않는다 — 담고 있는 카드가 대신 밝아진다.
+   칸이 카드를 꽉 채우고 있어서, 여기에 테를 그리면 카드가 통째로 테두리 쳐진 것처럼
+   보이고 그건 오류 표시로 읽힌다. */
+textarea:focus-visible,
+input:focus-visible {
+  outline: none;
+}
+.lit-focus {
+  transition: border-color 260ms var(--ease-glass), box-shadow 260ms var(--ease-glass);
+}
+.lit-focus:focus-within {
+  border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
+  box-shadow:
+    inset 0 1px 0 var(--lip),
+    0 0 0 3px color-mix(in srgb, var(--color-accent) 16%, transparent),
+    0 20px 46px -28px rgba(var(--shadow-warm), 0.3);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 34%, transparent);
+  color: var(--color-t1);
+}

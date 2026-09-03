@@ -83,7 +83,7 @@ function ReportCard({ dept, index }: { dept: Dept; index: number }) {
 
 export function Meetings({ meetings, depts }: { meetings: Meeting[]; depts: Dept[] }) {
   if (!meetings.length) return null;
-  const colorOf = (name: string) => depts.find((d) => d.name === name)?.color ?? "#8E96A8";
+  const colorOf = (name: string) => depts.find((d) => d.name === name)?.color ?? "#5C6478";
   const abbrOf = (name: string) => depts.find((d) => d.name === name)?.abbr ?? name.slice(0, 2);
 
   return (

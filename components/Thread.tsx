@@ -41,7 +41,7 @@ export function Thread({
 
 function Question({ text }: { text: string }) {
   return (
-    <div className="rise px-5 sm:px-7 py-5 sm:py-6 border-b border-line-2 bg-white/[.022]">
+    <div className="rise px-5 sm:px-7 py-5 sm:py-6 border-b border-line-2 band">
       <p className="text-[11px] font-semibold tracking-[0.14em] text-t3 uppercase mb-2">질문</p>
       <p className="text-[17px] sm:text-[18.5px] leading-[1.6] font-semibold text-t1 tracking-[-0.02em] max-w-[62ch]">
         {text}
@@ -75,7 +75,7 @@ function GroupColumns({
           if (!m || !r) return null;
           return (
             <div key={slot} className={`min-w-0 ${i > 0 ? "border-l border-line-2" : ""}`}>
-              <div className="sticky top-0 z-10 bg-void/80 backdrop-blur-[10px] px-4 sm:px-5 pt-3 pb-2">
+              <div className="sticky top-0 z-10 stick backdrop-blur-[18px] px-4 sm:px-5 pt-3 pb-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span
                     className="w-[7px] h-[7px] rounded-full shrink-0"
@@ -212,17 +212,17 @@ function Synthesis({
   const red = Boolean(fatal || bar || call);
   const rows = red
     ? [
-        { label: "치명상", text: fatal, tone: "#FF6B6B" },
-        { label: "합격선", text: bar, tone: "#FFB454" },
+        { label: "치명상", text: fatal, tone: "#B5352D" },
+        { label: "합격선", text: bar, tone: "#9A5F0B" },
       ]
     : [
-        { label: "합의", text: agree, tone: "#3DDC97" },
-        { label: "갈림", text: split, tone: "#7EA6FF" },
+        { label: "합의", text: agree, tone: "#15734E" },
+        { label: "갈림", text: split, tone: "#2F5FBE" },
       ];
   const verdict = red ? call : answer;
 
   return (
-    <section className="rise border-b border-line-2 bg-white/[.022]">
+    <section className="rise border-b border-line-2 band">
       <div className="px-5 sm:px-7 py-6">
         <div className="max-w-[72ch]">
           <div className="flex items-center gap-2 mb-4">
@@ -253,7 +253,7 @@ function Synthesis({
                 </div>
               )}
               {!rows.some((x) => x.text) && !verdict && r.text && (
-                <Prose text={r.text} color="#A8B0C0" />
+                <Prose text={r.text} color="#6F6357" />
               )}
             </div>
           )}
@@ -354,7 +354,7 @@ function ErrorLine({ message, onRetry }: { message?: string; onRetry: () => void
       <button
         type="button"
         onClick={onRetry}
-        className="mt-2 h-[28px] px-2.5 rounded-[8px] glass-2 text-[12.5px] font-medium text-t1 hover:bg-white/[.09] transition-colors"
+        className="mt-2 h-[28px] px-2.5 rounded-[8px] glass-2 text-[12.5px] font-medium text-t1 press"
       >
         이 탭만 다시
       </button>

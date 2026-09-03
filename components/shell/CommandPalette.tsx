@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { IconPlus, IconSearch } from "./icons";
-import { MODES, MODE_BY_KEY, type Mode } from "./modes";
-import { whenLabel, type StoredSession } from "@/lib/sessions";
+import { useModes, useModeMap, type Mode } from "./modes";
+import type { StoredSession } from "@/lib/sessions";
+import { useCopy } from "@/lib/i18n";
+import { useWhen } from "@/lib/useWhen";
 
 interface Item {
   id: string;
@@ -32,6 +34,10 @@ export function CommandPalette({
   sessions: StoredSession[];
   mode: Mode;
 }) {
+  const t = useCopy();
+  const MODES = useModes();
+  const MODE_BY_KEY = useModeMap();
+  const when = useWhen();
   const [q, setQ] = useState("");
   const [at, setAt] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
@@ -40,15 +46,15 @@ export function CommandPalette({
     const out: Item[] = [
       {
         id: "new",
-        group: "동작",
-        label: `${MODE_BY_KEY[mode].newLabel} 시작`,
-        hint: "지금 화면을 비우고 처음부터",
+        group: t.palette.groupAction,
+        label: t.palette.startNew(MODE_BY_KEY[mode].newLabel),
+        hint: t.palette.startNewHint,
         accent: MODE_BY_KEY[mode].accent,
         run: onNew,
       },
       ...MODES.map((m) => ({
         id: `mode-${m.key}`,
-        group: "이동",
+        group: t.palette.groupGo,
         label: m.label,
         hint: m.hint,
         accent: m.accent,
@@ -56,10 +62,10 @@ export function CommandPalette({
       })),
       ...sessions.map((s) => ({
         id: `s-${s.id}`,
-        group: "기록",
-        label: s.title || "제목 없음",
-        hint: `${MODE_BY_KEY[s.mode]?.label ?? s.mode} · ${s.subtitle} · ${whenLabel(s.at)}`,
-        accent: MODE_BY_KEY[s.mode]?.accent ?? "#9FC0FF",
+        group: t.palette.groupHistory,
+        label: s.title || t.shell.untitled,
+        hint: `${MODE_BY_KEY[s.mode]?.label ?? s.mode} · ${s.subtitle} · ${when.label(s.at)}`,
+        accent: MODE_BY_KEY[s.mode]?.accent ?? "#2F5FBE",
         run: () => onOpen(s),
       })),
     ];
@@ -68,7 +74,7 @@ export function CommandPalette({
     return out.filter(
       (i) => i.label.toLowerCase().includes(k) || i.hint.toLowerCase().includes(k),
     );
-  }, [mode, onMode, onNew, onOpen, q, sessions]);
+  }, [MODES, MODE_BY_KEY, mode, onMode, onNew, onOpen, q, sessions, t, when]);
 
   useEffect(() => {
     if (!open) return;
@@ -109,13 +115,13 @@ export function CommandPalette({
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[12vh] px-4">
       <button
         type="button"
-        aria-label="닫기"
+        aria-label={t.shell.close}
         onClick={onClose}
-        className="absolute inset-0 bg-black/55"
-        style={{ backdropFilter: "blur(5px)" }}
+        className="absolute inset-0 scrim"
+        style={{ backdropFilter: "blur(6px)" }}
       />
 
-      <div className="relative w-full max-w-[560px] glass-3 glass-lit rounded-[18px] overflow-hidden rise">
+      <div className="relative w-full max-w-[560px] glass-modal glass-lit rounded-[20px] overflow-hidden rise">
         <div className="flex items-center gap-2.5 px-4 h-[52px] border-b border-line-2">
           <IconSearch size={16} className="text-t3 shrink-0" />
           <input
@@ -125,8 +131,8 @@ export function CommandPalette({
               setQ(e.target.value);
               setAt(0);
             }}
-            placeholder="어디로 갈까요"
-            aria-label="명령 검색"
+            placeholder={t.palette.placeholder}
+            aria-label={t.palette.aria}
             className="flex-1 min-w-0 bg-transparent outline-none text-[14.5px] text-t1 placeholder:text-t4"
           />
           <kbd className="font-mono text-[10px] text-t4 border border-line-2 rounded-[5px] px-1.5 py-0.5 shrink-0">
@@ -136,7 +142,7 @@ export function CommandPalette({
 
         <div ref={listRef} className="max-h-[52vh] overflow-y-auto scroll-y p-1.5">
           {items.length === 0 && (
-            <p className="px-3 py-6 text-center text-[13px] text-t4">찾는 게 없습니다</p>
+            <p className="px-3 py-6 text-center text-[13px] text-t4">{t.palette.empty}</p>
           )}
           {items.map((it, i) => {
             const head = it.group !== lastGroup ? it.group : null;
@@ -157,7 +163,7 @@ export function CommandPalette({
                     onClose();
                   }}
                   className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-[10px] text-left transition-colors ${
-                    i === at ? "bg-white/[.08]" : ""
+                    i === at ? "sel" : ""
                   }`}
                 >
                   <span

@@ -109,15 +109,15 @@ export function CourtStart({
         >
           <span>재판장 {shortOf(cast.judge)}</span>
           <Dot />
-          <span className="text-[#6AA6FF]/70">남자측 {shortOf(cast.a)}</span>
+          <span className="text-[#2F63C4]/70">남자측 {shortOf(cast.a)}</span>
           <Dot />
-          <span className="text-[#FF7A9C]/70">여자측 {shortOf(cast.b)}</span>
+          <span className="text-[#C0446E]/70">여자측 {shortOf(cast.b)}</span>
           <Dot />
           <span>배심 {shortOf(cast.jury)}</span>
           <button
             type="button"
             onClick={shuffle}
-            className="ml-1 h-[30px] sm:h-[22px] px-3 sm:px-2 rounded-[9px] sm:rounded-[7px] text-[11px] sm:text-[10.5px] font-medium text-t3 hover:text-t1 active:bg-white/[.09] sm:hover:bg-white/[.07] transition-colors"
+            className="ml-1 h-[30px] sm:h-[22px] px-3 sm:px-2 rounded-[9px] sm:rounded-[7px] text-[11px] sm:text-[10.5px] font-medium text-t3 hover:text-t1 press"
           >
             섞기
           </button>
@@ -170,7 +170,7 @@ export function CourtStart({
   );
 }
 
-const Dot = () => <span className="w-[3px] h-[3px] rounded-full bg-white/15" aria-hidden />;
+const Dot = () => <span className="w-[3px] h-[3px] rounded-full rule" aria-hidden />;
 
 function Tab({
   on,
@@ -204,10 +204,10 @@ function AgeGate({ onOk, onCancel }: { onOk: () => void; onCancel: () => void })
         type="button"
         aria-label="닫기"
         onClick={onCancel}
-        className="absolute inset-0 bg-black/60"
+        className="absolute inset-0 scrim"
         style={{ backdropFilter: "blur(5px)" }}
       />
-      <div className="relative w-full max-w-[360px] glass-3 glass-lit rounded-[20px] p-6 rise text-center">
+      <div className="relative w-full max-w-[360px] glass-modal glass-lit rounded-[22px] p-6 rise text-center">
         <span
           className="mx-auto grid place-items-center w-[50px] h-[50px] rounded-full seal-throb"
           style={{
@@ -239,8 +239,8 @@ function AgeGate({ onOk, onCancel }: { onOk: () => void; onCancel: () => void })
             onClick={onOk}
             className="flex-1 h-[40px] rounded-[12px] text-[13px] font-bold text-white transition-transform duration-300 active:scale-[.98]"
             style={{
-              background: "linear-gradient(180deg,#ff8080,#d84f4f)",
-              boxShadow: "inset 0 1px 0 rgba(255,255,255,.35), 0 10px 24px -14px rgba(216,79,79,.9)",
+              background: "linear-gradient(180deg,#c8493f,#a32b24)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,.35), 0 10px 24px -12px rgba(163,43,36,.55)",
             }}
           >
             19세 이상입니다
