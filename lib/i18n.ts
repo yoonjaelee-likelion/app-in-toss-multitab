@@ -48,7 +48,7 @@ const ko = {
   /* ── 모드 ── */
   modes: {
     inbiz: { label: "인비즈", hint: "AI 법인이 사업을 진단합니다", newLabel: "새 진단" },
-    judge: { label: "판정", hint: "여러 AI가 답하고 서로 반박합니다", newLabel: "새 대화" },
+    judge: { label: "대화", hint: "여러 AI가 한 번에 답합니다", newLabel: "새 대화" },
     redteam: { label: "레드팀", hint: "심사역 AI가 약점만 찾습니다", newLabel: "새 공격" },
     court: { label: "법원", hint: "싸움을 재판에 부칩니다", newLabel: "새 재판" },
     comfort: { label: "위로", hint: "친구 다섯이 다르게 반응합니다", newLabel: "새 방" },
@@ -85,7 +85,7 @@ const ko = {
   /* ── 입력창 ── */
   composer: {
     needTab: "AI를 먼저 열어주세요",
-    placeholder: "열린 AI 전부에게 한 번에 물어봅니다",
+    placeholder: "무엇이든 물어보세요",
     answering: (n: number) => `${n}개 AI가 함께 답합니다`,
     send: "보내기",
     stop: "중단",
@@ -97,9 +97,9 @@ const ko = {
     waiting: (n: number) => `${n}개 AI가 대기 중`,
     needTabs: "AI를 먼저 열어주세요",
     newChat: "새 대화",
-    titleJudge: "한 번 물어보면\n전부가 답합니다",
+    titleJudge: "무엇이든 물어보세요\n전부가 답합니다",
     titleRed: "어디서 죽는지\n먼저 봅시다",
-    bodyJudge: "대화는 하나라서 맥락을 공유합니다. 답이 갈리면 서로 반박도 시킬 수 있습니다.",
+    bodyJudge: "그냥 대화하면 됩니다. 다만 답하는 쪽이 여럿이라 답도 여러 개입니다. 대화는 하나라서 맥락은 같이 봅니다.",
     bodyRed: "열린 AI 전부가 투자 심사역이 됩니다. 좋은 점은 말하지 않고 깨질 지점만 찾습니다.",
     placeholderRed: "깨뜨려 볼 계획을 적어주세요",
     rebut: "서로 반박시키기",
@@ -108,10 +108,10 @@ const ko = {
     deathCert: "사망 진단서",
     mockNote: "API 키가 없는 모델은 모의 응답으로 대신합니다",
     samplesJudge: [
-      "지금 이 사업, 접는 게 맞을까 더 밀어붙이는 게 맞을까",
-      "공동창업자에게 지분을 얼마나 줘야 할까",
-      "투자를 받는 게 나을까, 매출로 버티는 게 나을까",
-      "가격을 올려야 할까, 지금 유지해야 할까",
+      "제주도 3박 4일, 뚜벅이로 다닐 수 있게 짜줘",
+      "파이썬이랑 자바스크립트 중에 뭘 먼저 배울까",
+      "면접에서 마지막에 질문 있냐고 하면 뭐라고 해야 돼",
+      "전세랑 월세, 지금 상황에선 뭐가 나을까",
     ],
     samplesRed: [
       "철산역 타코 프랜차이즈 1호점 계획을 공격해줘",
@@ -347,7 +347,7 @@ const en: Copy = {
 
   modes: {
     inbiz: { label: "Inbiz", hint: "An AI company diagnoses your business", newLabel: "New checkup" },
-    judge: { label: "Panel", hint: "Several AIs answer, then argue", newLabel: "New chat" },
+    judge: { label: "Chat", hint: "Several AIs answer at once", newLabel: "New chat" },
     redteam: { label: "Red team", hint: "Investor AIs hunt only for weak points", newLabel: "New teardown" },
     court: { label: "Court", hint: "Put the argument on trial", newLabel: "New trial" },
     comfort: { label: "Comfort", hint: "Five friends, five different reactions", newLabel: "New room" },
@@ -380,7 +380,7 @@ const en: Copy = {
 
   composer: {
     needTab: "Open an AI first",
-    placeholder: "Ask every open AI at once",
+    placeholder: "Ask anything",
     answering: (n: number) => (n === 1 ? "1 AI is answering" : `${n} AIs are answering together`),
     send: "Send",
     stop: "Stop",
@@ -391,10 +391,10 @@ const en: Copy = {
     waiting: (n: number) => (n === 1 ? "1 AI standing by" : `${n} AIs standing by`),
     needTabs: "Open an AI first",
     newChat: "New chat",
-    titleJudge: "Ask once,\nall of them answer",
+    titleJudge: "Ask anything,\nall of them answer",
     titleRed: "Let's find out\nwhere this dies",
     bodyJudge:
-      "It is one conversation, so they share the context. When answers diverge you can make them argue.",
+      "Just talk. There are simply several of them answering, so you get several answers. It stays one conversation, so they all share the context.",
     bodyRed:
       "Every open AI becomes an investor. They will not name a single strength — only where it breaks.",
     placeholderRed: "Describe the plan you want torn apart",
@@ -404,10 +404,10 @@ const en: Copy = {
     deathCert: "Death certificate",
     mockNote: "Models without an API key answer with mock responses",
     samplesJudge: [
-      "Should I shut this business down or push harder?",
-      "How much equity should a co-founder get?",
-      "Raise money, or survive on revenue?",
-      "Should I raise prices or hold them where they are?",
+      "Plan me four days in Kyoto without renting a car",
+      "Should I learn Python or JavaScript first?",
+      "What do I say when an interviewer asks if I have questions?",
+      "Rent or buy, given where rates are right now?",
     ],
     samplesRed: [
       "Tear apart my plan for a taco franchise's first location",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, type ComponentType } from "react";
-import { IconChat, IconGavel, IconPulse, IconScales, IconTarget } from "./icons";
+import { IconChat, IconChatMulti, IconGavel, IconPulse, IconTarget } from "./icons";
 import { useCopy } from "@/lib/i18n";
 import type { SessionMode } from "@/lib/sessions";
 
@@ -21,7 +21,7 @@ export interface ModeDef {
 /** 말은 사전에서, 아이콘과 색은 여기서. 순서도 여기가 정한다 */
 const SHAPE: { key: Mode; icon: ModeDef["icon"]; accent: string }[] = [
   { key: "inbiz", icon: IconPulse, accent: "#16805C" },
-  { key: "judge", icon: IconScales, accent: "#2F5FBE" },
+  { key: "judge", icon: IconChatMulti, accent: "#2F5FBE" },
   { key: "redteam", icon: IconTarget, accent: "#B5352D" },
   { key: "court", icon: IconGavel, accent: "#8E5F18" },
   { key: "comfort", icon: IconChat, accent: "#B03A63" },
