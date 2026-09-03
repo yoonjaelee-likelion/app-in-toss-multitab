@@ -2,14 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { newId } from "@/lib/chat";
+import { IconSeal } from "@/components/shell/icons";
+import { useCopy } from "@/lib/i18n";
 import {
-  COMFORT_EXAMPLES,
   FRIENDS,
   FRIEND_BY_KEY,
   modelShort,
   shuffleCast,
   type ChatMsg,
   type ComfortCast,
+  type ComfortRating,
   type FriendKey,
 } from "@/lib/comfort";
 import type { StoredSession } from "@/lib/sessions";
@@ -31,6 +33,7 @@ export function Comfort({
   restore: StoredSession | null;
   onSession: (id: string) => void;
 }) {
+  const t = useCopy();
   const c = useComfort();
   const [text, setText] = useState("");
   const ta = useRef<HTMLTextAreaElement>(null);
@@ -87,11 +90,11 @@ export function Comfort({
     persist({
       id,
       mode: "comfort",
-      title: first?.text ?? "위로방",
+      title: first?.text ?? t.modes.comfort.label,
       subtitle: `친구 5명 · ${snap.msgs.filter((m) => m.who === "me").length}번 털어놓음`,
       data: snap,
     });
-  }, [c.busy, c.msgs.length, persist]);
+  }, [c.busy, c.msgs.length, persist, t]);
 
   const send = useCallback(
     (v: string) => {
@@ -114,7 +117,13 @@ export function Comfort({
     <div className="h-full flex flex-col min-h-0">
       <div ref={scroller} onScroll={onScroll} className="flex-1 min-h-0 overflow-auto scroll-y">
         {empty ? (
-          <Intro cast={c.cast} onShuffle={() => c.reshuffle(shuffleCast())} onPick={send} />
+          <Intro
+            cast={c.cast}
+            rating={c.rating}
+            onRating={c.setRating}
+            onShuffle={() => c.reshuffle(shuffleCast())}
+            onPick={send}
+          />
         ) : (
           <div className="mx-auto w-full max-w-[640px] px-4 sm:px-5 py-5 space-y-3">
             {c.msgs.map((m) => (
@@ -124,7 +133,7 @@ export function Comfort({
             {c.error && <p className="text-[12.5px] text-bad text-center">{c.error}</p>}
             {c.mock && !c.busy && (
               <p className="text-[11px] text-t4 text-center pt-1">
-                API 키가 없어 모의 응답으로 대화하고 있습니다
+                {t.comfort.mockNote}
               </p>
             )}
           </div>
@@ -150,13 +159,13 @@ export function Comfort({
                 }
               }}
               rows={1}
-              placeholder={empty ? "무슨 일 있었어?" : "더 얘기해도 돼"}
-              aria-label="사연 입력"
+              placeholder={empty ? t.comfort.placeholderFirst : t.comfort.placeholderMore}
+              aria-label={t.comfort.aria}
               className="w-full resize-none bg-transparent outline-none px-4 pt-3.5 pb-2 text-[15px] leading-[1.7] text-t1 placeholder:text-t4"
             />
             <div className="flex items-center gap-2 px-2.5 pb-2.5">
               <span className="flex-1 text-[11px] text-t4 pl-1 truncate">
-                {c.busy ? "친구들이 답하는 중" : "친구 5명이 읽고 있습니다"}
+                {c.busy ? t.comfort.answering : t.comfort.reading}
               </span>
               {!empty && !c.busy && (
                 <button
@@ -167,7 +176,7 @@ export function Comfort({
                   }}
                   className="h-[36px] sm:h-[31px] px-3 sm:px-2.5 rounded-[10px] sm:rounded-[9px] text-[12px] font-medium text-t3 hover:text-t1 press shrink-0"
                 >
-                  새 방
+                  {t.comfort.newRoom}
                 </button>
               )}
               {c.busy ? (
@@ -176,15 +185,15 @@ export function Comfort({
                   onClick={c.stop}
                   className="nm-btn h-[36px] sm:h-[31px] px-3.5 sm:px-3 rounded-[11px] sm:rounded-[10px] text-[12.5px] font-semibold text-t1 shrink-0"
                 >
-                  그만
+                  {t.comfort.stop}
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={() => send(text)}
                   disabled={!text.trim()}
-                  aria-label="보내기"
-                  title="보내기 ⏎"
+                  aria-label={t.composer.send}
+                  title={`${t.composer.send} ⏎`}
                   className="btn-solid !rounded-full w-[38px] h-[38px] grid place-items-center shrink-0 disabled:cursor-not-allowed"
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
@@ -211,37 +220,72 @@ export function Comfort({
 
 function Intro({
   cast,
+  rating,
+  onRating,
   onShuffle,
   onPick,
 }: {
   cast: ComfortCast;
+  rating: ComfortRating;
+  onRating: (r: ComfortRating) => void;
   onShuffle: () => void;
   onPick: (q: string) => void;
 }) {
+  const t = useCopy();
+  const [gate, setGate] = useState(false);
+  const [adultOk, setAdultOk] = useState(false);
+  const adult = rating === "adult";
+
   return (
-    <div className="mx-auto w-full max-w-[560px] px-5 pt-[7vh] pb-10">
+    <div className="mx-auto w-full max-w-[560px] px-4 sm:px-5 pt-5 sm:pt-[6vh] pb-10">
       <div className="rise text-center">
-        <h1 className="text-[28px] sm:text-[36px] font-bold leading-[1.2] tracking-[-0.045em] text-t1">
-          무슨 일 있었어?
-        </h1>
-        <p className="mt-3 text-[14px] sm:text-[15px] leading-[1.7] text-t2">
-          다섯 명이 다 다르게 반응합니다.
-          <br />
-          편들어주는 애, 화내주는 애, 팩트 던지는 애, 굳이 반대편 드는 애.
+        <h1 className="display text-[28px] sm:text-[36px]">{t.comfort.title}</h1>
+        <p className="mt-3 whitespace-pre-line text-[14px] sm:text-[15px] leading-[1.7] text-t2">
+          {t.comfort.sub}
         </p>
       </div>
 
-      <div className="rise mt-7 space-y-1.5" style={{ animationDelay: "120ms" }}>
+      {/* ── 방의 온도 — 같은 사연도 여기서 완전히 달라진다 ──── */}
+      <div className="rise mt-6 flex justify-center" style={{ animationDelay: "90ms" }}>
+        <div className="nm-in rounded-[14px] p-[3px] flex items-center gap-[3px]">
+          <RoomTab on={!adult} onClick={() => onRating("normal")}>
+            {t.comfort.normal}
+          </RoomTab>
+          <RoomTab
+            on={adult}
+            danger
+            onClick={() => (adultOk ? onRating("adult") : setGate(true))}
+          >
+            <IconSeal size={12} />
+            {t.comfort.adult}
+          </RoomTab>
+        </div>
+      </div>
+      <p
+        className="rise mt-2.5 text-center text-[11.5px] leading-[1.6] text-t4 max-w-[38ch] mx-auto"
+        style={{ animationDelay: "120ms" }}
+      >
+        {adult ? t.comfort.adultNote : t.comfort.normalNote}
+      </p>
+
+      <div className="rise mt-6 space-y-1.5" style={{ animationDelay: "150ms" }}>
         {FRIENDS.map((f, i) => (
           <div
             key={f.key}
-            className="pop-in glass-2 rounded-[13px] px-3 py-2.5 flex items-center gap-2.5"
-            style={{ animationDelay: `${140 + i * 70}ms` }}
+            className="pop-in glass-2 rounded-[14px] px-3 py-2.5 flex items-center gap-2.5"
+            style={{
+              animationDelay: `${170 + i * 70}ms`,
+              borderColor: adult ? `${f.color}3a` : undefined,
+            }}
           >
             <Avatar who={f.key} size={30} />
             <span className="min-w-0 flex-1">
-              <span className="block text-[12.5px] font-semibold text-t1">{f.name}</span>
-              <span className="block text-[11px] text-t4 truncate">{f.trait}</span>
+              <span className="block text-[12.5px] font-semibold text-t1">
+                {t.comfort.friends[f.key].name}
+              </span>
+              <span className="block text-[11px] text-t4 truncate">
+                {t.comfort.friends[f.key].trait}
+              </span>
             </span>
             <span className="shrink-0 font-mono text-[10px] text-t4">{modelShort(cast[f.key])}</span>
           </div>
@@ -250,29 +294,117 @@ function Intro({
           <button
             type="button"
             onClick={onShuffle}
-            className="h-[34px] sm:h-[26px] px-3 sm:px-2.5 rounded-[10px] sm:rounded-[8px] text-[11.5px] font-medium text-t3 hover:text-t1 press"
+            className="press h-[34px] sm:h-[28px] px-3 rounded-full text-[11.5px] font-medium text-t3 hover:text-t1"
           >
-            친구 섞기
+            {t.comfort.shuffle}
           </button>
         </div>
       </div>
 
-      <div className="rise mt-7" style={{ animationDelay: "320ms" }}>
+      <div className="rise mt-7" style={{ animationDelay: "340ms" }}>
         <p className="text-[11px] font-semibold tracking-[0.14em] text-t4 uppercase mb-2.5">
-          이런 것도 됩니다
+          {t.comfort.samplesHead}
         </p>
         <div className="space-y-1.5">
-          {COMFORT_EXAMPLES.map((q, i) => (
+          {t.comfort.samples.map((q, i) => (
             <button
               key={q}
               type="button"
               onClick={() => onPick(q)}
-              className="rise btn sheen w-full text-left px-3.5 py-2.5 text-[13px] leading-[1.5] text-t2 hover:text-t1"
-              style={{ animationDelay: `${340 + i * 70}ms` }}
+              className="rise btn sheen w-full text-left px-4 py-3 rounded-[14px] text-[13px] leading-[1.5] text-t2 hover:text-t1"
+              style={{ animationDelay: `${360 + i * 70}ms` }}
             >
               {q}
             </button>
           ))}
+        </div>
+      </div>
+
+      {gate && (
+        <ComfortGate
+          onCancel={() => setGate(false)}
+          onOk={() => {
+            setAdultOk(true);
+            setGate(false);
+            onRating("adult");
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function RoomTab({
+  on,
+  danger,
+  onClick,
+  children,
+}: {
+  on: boolean;
+  danger?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={on}
+      className={`h-[38px] px-4 rounded-[12px] text-[12.5px] font-semibold flex items-center gap-1.5 transition-all duration-500 ${
+        on ? (danger ? "text-blood nm seal-throb" : "text-t1 nm") : "text-t3 hover:text-t2"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** 찐친방도 한 번은 확인을 받는다 — 법정과 같은 규칙이다 */
+function ComfortGate({ onOk, onCancel }: { onOk: () => void; onCancel: () => void }) {
+  const t = useCopy();
+  return (
+    <div className="fixed inset-0 z-[90] grid place-items-center px-5">
+      <button
+        type="button"
+        aria-label={t.shell.close}
+        onClick={onCancel}
+        className="absolute inset-0 scrim"
+        style={{ backdropFilter: "blur(5px)" }}
+      />
+      <div className="relative w-full max-w-[360px] glass-modal glass-lit rounded-[22px] p-6 rise text-center">
+        <span
+          className="mx-auto grid place-items-center w-[50px] h-[50px] rounded-full seal-throb"
+          style={{
+            background: "color-mix(in srgb, var(--color-blood) 12%, transparent)",
+            border: "1px solid color-mix(in srgb, var(--color-blood) 34%, transparent)",
+            color: "var(--color-blood)",
+          }}
+        >
+          <span className="font-mono text-[15px] font-bold">19</span>
+        </span>
+        <h2 className="mt-4 text-[17px] font-bold text-t1 tracking-[-0.02em]">{t.comfort.adult}</h2>
+        <p className="mt-2.5 text-[13px] leading-[1.72] text-t2">{t.comfort.adultNote}</p>
+        <p className="mt-2 text-[11.5px] leading-[1.6] text-t4">{t.court.gateNote}</p>
+        <div className="mt-5 flex gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="nm-btn flex-1 h-[42px] rounded-[12px] text-[13px] font-semibold text-t2"
+          >
+            {t.comfort.normal}
+          </button>
+          <button
+            type="button"
+            onClick={onOk}
+            className="flex-1 h-[42px] rounded-[12px] text-[13px] font-bold text-white transition-transform duration-300 active:scale-[.98]"
+            style={{
+              background: "linear-gradient(180deg,#c8493f,#a32b24)",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,.28), 0 10px 24px -12px rgba(163,43,36,.55)",
+            }}
+          >
+            {t.court.gateYes}
+          </button>
         </div>
       </div>
     </div>
@@ -282,10 +414,11 @@ function Intro({
 /* ── 말풍선 ───────────────────────────────────────────────── */
 
 function Bubble({ msg }: { msg: ChatMsg }) {
+  const t = useCopy();
   if (msg.who === "me") {
     return (
       <div className="flex justify-end slide-in-r">
-        <div className="max-w-[84%] nm rounded-[15px] rounded-tr-[5px] px-3.5 py-2.5">
+        <div className="max-w-[90%] sm:max-w-[84%] nm rounded-[15px] rounded-tr-[5px] px-3.5 py-2.5">
           <p className="text-[14px] leading-[1.72] text-t1 break-keep whitespace-pre-wrap">
             {msg.text}
           </p>
@@ -298,9 +431,9 @@ function Bubble({ msg }: { msg: ChatMsg }) {
   return (
     <div className="flex gap-2.5 slide-in-l">
       <Avatar who={msg.who} size={30} />
-      <div className="min-w-0 max-w-[84%]">
+      <div className="min-w-0 max-w-[90%] sm:max-w-[84%]">
         <p className="mb-1 flex items-center gap-1.5 text-[10.5px]">
-          <span style={{ color: f.color }}>{f.name}</span>
+          <span style={{ color: f.color }}>{t.comfort.friends[msg.who].name}</span>
           <span className="text-t4">{modelShort(msg.model ?? "")}</span>
         </p>
         {/* 친구마다 자기 색을 아주 옅게 머금는다 — 다섯이 줄줄이 들어오는 방이라
@@ -329,16 +462,17 @@ function Bubble({ msg }: { msg: ChatMsg }) {
 }
 
 function TypingRow({ who, cast }: { who: FriendKey; cast: ComfortCast }) {
+  const t = useCopy();
   const f = FRIEND_BY_KEY[who];
   return (
     <div className="flex gap-2.5 items-center slide-in-l">
       <Avatar who={who} size={30} />
       <div className="flex items-center gap-2 px-3 h-[34px] glass-2 rounded-[13px]">
         <span className="text-[11px]" style={{ color: f.color }}>
-          {f.name}
+          {t.comfort.friends[who].name}
         </span>
         <span className="text-[10.5px] text-t4">{modelShort(cast[who])}</span>
-        <span className="inline-flex items-center gap-[3px]" aria-label="입력 중">
+        <span className="inline-flex items-center gap-[3px]" aria-label={t.court.typing}>
           {[0, 1, 2].map((i) => (
             <i
               key={i}

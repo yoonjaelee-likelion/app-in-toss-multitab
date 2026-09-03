@@ -25,7 +25,15 @@ export const IconPulse = ({ size = 16, className }: P) => (
   </svg>
 );
 
-/** 판정 — 저울 */
+/** 대화 — 말풍선 하나에 점 셋. 여럿이 한 번에 답한다는 뜻 */
+export const IconChatMulti = ({ size = 16, className }: P) => (
+  <svg {...base(size)} className={className}>
+    <path d="M14 8.4a5.6 5.6 0 0 1-5.8 5.6c-.9 0-1.8-.2-2.5-.5L2 14.6l1.2-3.4A5.4 5.4 0 0 1 2.4 8.4 5.6 5.6 0 0 1 8.2 2.8 5.6 5.6 0 0 1 14 8.4Z" />
+    <path d="M5.9 8.4h.01M8.2 8.4h.01M10.5 8.4h.01" strokeWidth="1.9" />
+  </svg>
+);
+
+/** 저울 — 지금은 안 쓰지만 판정이라는 개념이 돌아올 수 있어 남겨 둔다 */
 export const IconScales = ({ size = 16, className }: P) => (
   <svg {...base(size)} className={className}>
     <path d="M8 2.2v11.6M4.5 13.8h7M3 4.6h10M3 4.6 1.4 8.6a2.1 2.1 0 0 0 3.2 0L3 4.6ZM13 4.6l-1.6 4a2.1 2.1 0 0 0 3.2 0L13 4.6Z" />

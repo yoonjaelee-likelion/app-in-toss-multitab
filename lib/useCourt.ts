@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { useSettings } from "./settings";
 import {
+  ARGUE_ROUNDS,
   DEFAULT_CAST,
   emptyCase,
   nameOf,
@@ -50,6 +52,10 @@ export function useCourt() {
   const [typing, setTyping] = useState<Who | null>(null);
   const [mock, setMock] = useState(false);
   const [error, setError] = useState("");
+
+  const { lang } = useSettings();
+  const langRef = useRef(lang);
+  langRef.current = lang;
 
   const abortRef = useRef<AbortController | null>(null);
   const fileRef = useRef<CaseFile>(caseFile);
@@ -117,6 +123,7 @@ export function useCourt() {
             cast: castRef.current,
             speaker: opts.speaker,
             round: opts.round,
+            lang: langRef.current,
             record: record(),
           } satisfies CourtRequest),
           signal: ac.signal,
@@ -203,7 +210,7 @@ export function useCourt() {
       setStep("arguing");
       await wait(420);
 
-      for (const round of [1, 2]) {
+      for (let round = 1; round <= ARGUE_ROUNDS; round += 1) {
         await speak("argue", "a", { speaker: "a", round });
         if (ac.signal.aborted) return;
         await wait(520);

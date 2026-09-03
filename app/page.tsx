@@ -11,6 +11,7 @@ import { CommandPalette } from "@/components/shell/CommandPalette";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { IconArrow, IconPanel, IconSearch } from "@/components/shell/icons";
 import { useModeMap, type Mode } from "@/components/shell/modes";
+import type { Stance } from "@/components/shell/StanceBar";
 import { useCopy } from "@/lib/i18n";
 import { newId, type Turn } from "@/lib/chat";
 import { MODEL_BY_ID } from "@/lib/models";
@@ -18,6 +19,7 @@ import type { StoredSession } from "@/lib/sessions";
 import { useSessions, type PersistInput } from "@/lib/useSessions";
 import { useStoredFlag } from "@/lib/useStoredFlag";
 import { useTabs } from "@/lib/useTabs";
+import { useInbiz } from "@/lib/useInbiz";
 
 const WIDE = "(min-width: 1024px)";
 
@@ -155,14 +157,7 @@ export default function Page() {
 
           {/* ── 몸 ───────────────────────────────────────── */}
           <div className="flex-1 min-h-0">
-            {mode === "inbiz" ? (
-              <Inbiz
-                key={`inbiz-${seed}`}
-                persist={sessions.persist}
-                restore={mine}
-                onSession={setActiveId}
-              />
-            ) : mode === "court" ? (
+            {mode === "court" ? (
               <Court
                 key={`court-${seed}`}
                 persist={sessions.persist}
@@ -177,9 +172,12 @@ export default function Page() {
                 onSession={setActiveId}
               />
             ) : (
-              <Debate
-                key={`${mode}-${seed}`}
+              /* 판정·레드팀·인비즈는 한 껍데기 안에 있다.
+                 seed만 키에 넣는다 — 태도를 바꿨다고 하던 걸 버리면 안 된다. */
+              <Ask
+                key={`ask-${seed}`}
                 stance={mode}
+                onStance={setMode}
                 wide={wide}
                 persist={sessions.persist}
                 restore={mine}
@@ -212,21 +210,38 @@ interface DebateSnapshot {
   turns: Turn[];
 }
 
-function Debate({
+/**
+ * 질문 — 판정·레드팀·인비즈가 한 껍데기 안에 있다.
+ *
+ * 셋은 결국 같은 동작이다. 한 줄 적고 AI들한테 던진다. 다른 건 태도뿐이라
+ * 방을 옮길 일이 아니라 입력창 아래에서 고를 일이고, 그래서 입력창도 하나다.
+ *
+ * 엔진은 둘 다 여기서 들고 있는다. 태도를 바꿨다고 하던 걸 버리면
+ * 그건 고르개가 아니라 그냥 다른 방이다 — 판정에서 쓰던 대화도,
+ * 인비즈에서 돌던 진단도 돌아오면 그대로 있어야 한다.
+ */
+function Ask({
   stance,
+  onStance,
   wide,
   persist,
   restore,
   onSession,
 }: {
-  stance: "judge" | "redteam";
+  stance: Stance;
+  onStance: (s: Stance) => void;
   wide: boolean;
   persist: (p: PersistInput) => void;
   restore: StoredSession | null;
   onSession: (id: string) => void;
 }) {
   const c = useCopy();
-  const t = useTabs(stance);
+  const isInbiz = stance === "inbiz";
+  /* 인비즈일 때도 판정 엔진을 살려 둔다 — 돌아왔을 때 대화가 남아 있어야 한다 */
+  const t = useTabs(isInbiz ? "judge" : stance);
+  const inbiz = useInbiz();
+  /* 초안은 여기가 들고 있는다. 태도를 바꿔도 쓰던 글이 남는다 */
+  const [draft, setDraft] = useState("");
   const [active, setActive] = useState(t.tabs[0] ?? "");
   const scroller = useRef<HTMLDivElement>(null);
   const idRef = useRef<string | null>(restore?.id ?? null);
@@ -259,6 +274,7 @@ function Debate({
     const snap = snapRef.current;
     if (!id || !snap.turns.length) return;
     const first = snap.turns.find((x) => x.kind === "user");
+    if (isInbiz) return;
     persist({
       id,
       mode: stance,
@@ -266,17 +282,25 @@ function Debate({
       subtitle: c.debate.waiting(snap.tabs.length),
       data: snap,
     });
-  }, [t.turns.length, t.busy, persist, stance, c]);
+  }, [t.turns.length, t.busy, persist, stance, c, isInbiz]);
 
-  const ask = useCallback(
-    (text: string, targets: string[]) => {
+  /** 보내기 — 태도에 따라 어느 엔진으로 갈지만 갈린다 */
+  const submit = useCallback(
+    (raw?: string) => {
+      const body = (raw ?? draft).trim();
+      if (!body) return;
+      setDraft("");
+      if (isInbiz) {
+        void inbiz.run(body);
+        return;
+      }
       if (!idRef.current) {
         idRef.current = newId();
         onSession(idRef.current);
       }
-      t.ask(text, targets);
+      t.ask(body, t.tabs);
     },
-    [onSession, t],
+    [draft, inbiz, isInbiz, onSession, t],
   );
 
   const reset = useCallback(() => {
@@ -287,9 +311,12 @@ function Debate({
   const empty = t.turns.length === 0;
   const cols = t.tabs.length;
 
+  const busy = isInbiz ? inbiz.busy : t.busy;
+
   return (
     <div className="h-full flex flex-col min-h-0">
-      {/* 머리에 이미 모드 설명이 있다 — 같은 말을 두 번 하지 않는다 */}
+      {/* 탭은 판정·레드팀에만 있다 — 인비즈는 부서가 탭을 대신한다 */}
+      {!isInbiz && (
       <TabStrip
         tabs={t.tabs}
         active={activeTab}
@@ -313,29 +340,42 @@ function Debate({
           )
         }
       />
+      )}
 
-      <div
-        ref={scroller}
-        className={`flex-1 min-h-0 overflow-auto scroll-y ${empty ? "" : "border-t border-line-2"}`}
-      >
-        <div style={{ minWidth: compare ? Math.max(0, cols * 250) : undefined }}>
-          {empty ? (
-            <Empty red={red} tabs={t.tabs} onPick={(q) => ask(q, t.tabs)} />
-          ) : (
-            <Thread
-              turns={t.turns}
-              compare={compare}
-              wide={wide}
-              active={activeTab}
-              onRetry={t.retry}
-            />
-          )}
+      {isInbiz ? (
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <Inbiz
+            engine={inbiz}
+            persist={persist}
+            restore={restore}
+            onSession={onSession}
+            onPick={(q) => submit(q)}
+          />
         </div>
-      </div>
+      ) : (
+        <div
+          ref={scroller}
+          className={`flex-1 min-h-0 overflow-auto scroll-y ${empty ? "" : "border-t border-line-2"}`}
+        >
+          <div style={{ minWidth: compare ? Math.max(0, cols * 250) : undefined }}>
+            {empty ? (
+              <Empty red={red} tabs={t.tabs} onPick={(q) => submit(q)} />
+            ) : (
+              <Thread
+                turns={t.turns}
+                compare={compare}
+                wide={wide}
+                active={activeTab}
+                onRetry={t.retry}
+              />
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="shrink-0 px-3 sm:px-5 pt-2.5 pb-3 border-t border-line-2">
         <div className="mx-auto w-full max-w-[900px]">
-          {t.hasAnswers && (
+          {!isInbiz && t.hasAnswers && (
             <div className="flex items-center gap-1.5 mb-2 overflow-x-auto no-bar">
               <button
                 type="button"
@@ -356,11 +396,21 @@ function Debate({
             </div>
           )}
 
-          <Composer tabs={t.tabs} busy={t.busy} onSend={ask} onStop={t.stop} />
+          {/* 인비즈가 돌고 있을 때는 그만두는 버튼이 여기 하나뿐이다 */}
+          <Composer
+            stance={stance}
+            onStance={onStance}
+            tabs={t.tabs}
+            busy={busy}
+            text={draft}
+            onText={setDraft}
+            onSend={() => submit()}
+            onStop={isInbiz ? inbiz.stop : t.stop}
+          />
 
-          {t.anyMock && (
+          {(isInbiz ? inbiz.mock : t.anyMock) && (
             <p className="mt-2 text-[11px] text-t4 text-center">
-              {c.debate.mockNote}
+              {isInbiz ? c.inbiz.mockNote : c.debate.mockNote}
             </p>
           )}
         </div>
