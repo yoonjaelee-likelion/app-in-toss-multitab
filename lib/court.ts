@@ -143,9 +143,26 @@ const TONE: Record<Rating, string> = {
   ].join("\n"),
   adult: [
     "말투는 법정인데 내용은 웃겨야 한다. 이 어긋남이 전부다.",
-    "19금 법정이다. 욕을 써도 된다 — 지랄, 개소리, 병신 같은 소리, 씨발 같은 말이 법정 문장에 그대로 박히는 게 웃음 포인트다.",
-    "욕은 상황과 상대 논리에 대고 한다. 외모·가족·성별·출신은 건드리지 않는다. 혐오 표현과 노골적인 성 묘사는 하지 않는다.",
+    "19금 법정이다. 여기 온 사람은 순한 맛을 보러 온 게 아니다. 세게 간다.",
+    "욕을 쓴다. 씨발, 지랄, 개소리, 병신 같은 소리, 좆같다, 미친 — 이런 말이 「존경하는 재판장님」 같은 법정 문장에 그대로 박히는 게 이 모드의 전부다. 한 마디에 최소 하나는 박는다.",
+    "상대 논리를 조롱한다. 상대가 방금 한 말을 그대로 따서 비꼬고, 말도 안 되는 비유로 끝까지 밀어붙인다. 예: 「그 논리면 숨 쉬는 것도 바람 피우는 거겠네」",
+    "점잖게 굴면 실패다. 중립적인 문장이 하나라도 들어가면 그 변론은 진 거다.",
+    "다만 욕은 상황과 상대 논리에 대고 한다. 외모·가족·성별·출신·인격 자체를 걸고 넘어가지 않는다. 혐오 표현과 노골적인 성 묘사는 하지 않는다. 웃겨야지 불쾌하면 안 된다.",
   ].join("\n"),
+};
+
+/** 라운드가 올라갈수록 세진다 — 처음부터 끝까지 같은 세기면 그냥 시끄럽기만 하다 */
+const HEAT: Record<Rating, string[]> = {
+  normal: [
+    "1라운드다. 네 의뢰인이 왜 잘못이 없는지 세우고 상대 진술의 제일 약한 곳 하나를 짚는다.",
+    "2라운드다. 방금 상대가 한 말을 정면으로 받아친다. 아까보다 한 단계 세게.",
+    "마지막 라운드다. 여기서 못 이기면 끝이다. 상대 논리의 급소 하나만 잡고 끝까지 민다.",
+  ],
+  adult: [
+    "1라운드다. 아직 예의는 있는 척한다. 욕은 한 번만 섞고, 상대 진술의 구멍 하나를 짚는다.",
+    "2라운드다. 슬슬 열받은 티를 낸다. 상대가 방금 한 말을 그대로 따서 비웃고, 욕을 두 번 이상 섞는다. 상대 모델 이름을 걸고 넘어간다.",
+    "마지막 라운드다. 이성을 놨다. 제일 세게 간다. 상대 논리를 말도 안 되는 비유로 끝까지 밀어붙여서 웃기게 박살낸다. 재판장이 말릴 정도로.",
+  ],
 };
 
 /** 말투 지시. 「한국어로 쓴다」를 박아 두면 영어로 갈 수가 없으므로 언어를 받는다 */
@@ -247,11 +264,14 @@ export function courtSystem(req: CourtRequest): string {
   const other = me === "a" ? w : m;
   const round = req.round ?? 1;
 
+  const heat = HEAT[file.rating];
+
   return [
     `너는 ${shortOf(req.cast[me])}이고, 이 재판에서 ${mine}의 대리인이다. 너는 ${mine} 편이고 그것만이 네 일이다.`,
-    round === 1
-      ? `${mine}가 왜 잘못이 없는지 세우고, ${other}의 진술에서 제일 약한 곳 하나를 찌른다.`
-      : `방금 상대 대리인이 한 말을 정면으로 받아친다. 상대가 실제로 한 말만 가지고 친다.`,
+    heat[Math.min(round, heat.length) - 1],
+    round > 1
+      ? `상대가 실제로 한 말만 가지고 친다. 안 한 말을 지어내면 ${other} 쪽이 이긴다.`
+      : `${other}의 진술에서 제일 약한 곳을 고른다.`,
     rivalLine(req, me),
     "세 문장 이내. 짧고 세게. 중립적으로 굴면 해고당한다.",
     tone,
@@ -327,10 +347,16 @@ export function parseVerdict(text: string): Verdict | null {
 
 /* ── 데모 사건 ────────────────────────────────────────────── */
 
+/**
+ * 데모 사건에는 등급이 없다.
+ *
+ * 전에는 사건마다 등급이 박혀 있어서 「19금 · 술」 사건은 영원히 19금이었다.
+ * 그러면 같은 사건이 두 법정에서 어떻게 다른지를 볼 수가 없다.
+ * 이제 등급은 위의 토글 하나가 정하고, 다섯 사건 전부 양쪽으로 열린다.
+ */
 export interface DemoCase {
   id: string;
   tag: string;
-  rating: Rating;
   man: Party;
   woman: Party;
 }
@@ -339,7 +365,6 @@ export const DEMO_CASES: DemoCase[] = [
   {
     id: "katok",
     tag: "읽씹",
-    rating: "normal",
     man: {
       name: "태현",
       claim:
@@ -354,7 +379,6 @@ export const DEMO_CASES: DemoCase[] = [
   {
     id: "anniv",
     tag: "기념일",
-    rating: "normal",
     man: {
       name: "준영",
       claim:
@@ -369,7 +393,6 @@ export const DEMO_CASES: DemoCase[] = [
   {
     id: "ex",
     tag: "전 애인",
-    rating: "normal",
     man: {
       name: "도윤",
       claim:
@@ -382,8 +405,7 @@ export const DEMO_CASES: DemoCase[] = [
   },
   {
     id: "night",
-    tag: "19금 · 술",
-    rating: "adult",
+    tag: "술·연락두절",
     man: {
       name: "성민",
       claim:
@@ -397,8 +419,7 @@ export const DEMO_CASES: DemoCase[] = [
   },
   {
     id: "money",
-    tag: "19금 · 돈",
-    rating: "adult",
+    tag: "데이트 통장",
     man: {
       name: "우진",
       claim:

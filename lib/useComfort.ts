@@ -1,5 +1,6 @@
 "use client";
 
+import { useSettings } from "./settings";
 import { useCallback, useRef, useState } from "react";
 import {
   DEFAULT_COMFORT_CAST,
@@ -7,6 +8,7 @@ import {
   REPLY_ORDER,
   type ChatMsg,
   type ComfortCast,
+  type ComfortRating,
   type ComfortEvent,
   type ComfortRequest,
   type FriendKey,
@@ -21,6 +23,7 @@ import {
  */
 
 export interface ComfortSnapshot {
+  rating?: ComfortRating;
   cast: ComfortCast;
   msgs: ChatMsg[];
 }
@@ -37,6 +40,8 @@ function pickThree(): FriendKey[] {
 export function useComfort() {
   const [msgs, setMsgs] = useState<ChatMsg[]>([]);
   const [cast, setCast] = useState<ComfortCast>(DEFAULT_COMFORT_CAST);
+  /* 방의 온도 — 사연을 보내기 전에만 바꿀 수 있다 */
+  const [rating, setRating] = useState<ComfortRating>("normal");
   const [typing, setTyping] = useState<FriendKey | null>(null);
   const [busy, setBusy] = useState(false);
   const [mock, setMock] = useState(false);
@@ -45,6 +50,12 @@ export function useComfort() {
   const abortRef = useRef<AbortController | null>(null);
   const msgsRef = useRef<ChatMsg[]>([]);
   const castRef = useRef<ComfortCast>(cast);
+  const ratingRef = useRef<ComfortRating>(rating);
+  ratingRef.current = rating;
+
+  const { lang } = useSettings();
+  const langRef = useRef(lang);
+  langRef.current = lang;
 
   const push = useCallback((m: ChatMsg) => {
     msgsRef.current = [...msgsRef.current, m];
@@ -97,6 +108,8 @@ export function useComfort() {
           body: JSON.stringify({
             friend,
             cast: castRef.current,
+            rating: ratingRef.current,
+            lang: langRef.current,
             record: rec,
             first,
           } satisfies ComfortRequest),
@@ -201,16 +214,20 @@ export function useComfort() {
     castRef.current = snap.cast ?? DEFAULT_COMFORT_CAST;
     setMsgs(snap.msgs ?? []);
     setCast(snap.cast ?? DEFAULT_COMFORT_CAST);
+    setRating(snap.rating ?? "normal");
+    ratingRef.current = snap.rating ?? "normal";
     setTyping(null);
     setBusy(false);
     setError("");
   }, []);
 
-  const snapshot: ComfortSnapshot = { cast, msgs };
+  const snapshot: ComfortSnapshot = { cast, msgs, rating };
 
   return {
     msgs,
     cast,
+    rating,
+    setRating,
     typing,
     busy,
     mock,

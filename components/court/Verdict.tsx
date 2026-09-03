@@ -1,6 +1,7 @@
 "use client";
 
 import { nameOf, type CaseFile, type Verdict as V } from "@/lib/court";
+import { useCopy } from "@/lib/i18n";
 
 /**
  * 판결.
@@ -9,6 +10,7 @@ import { nameOf, type CaseFile, type Verdict as V } from "@/lib/court";
  * 과실비율은 숫자보다 길이로 먼저 보이게 했다. 도장은 마지막에 찍힌다.
  */
 export function VerdictCard({ verdict, file }: { verdict: V; file: CaseFile }) {
+  const t = useCopy();
   const m = nameOf(file.man, "남자");
   const w = nameOf(file.woman, "여자");
 
@@ -18,7 +20,7 @@ export function VerdictCard({ verdict, file }: { verdict: V; file: CaseFile }) {
 
       <div className="relative px-4 sm:px-5 pt-4 pb-3.5 flex items-center gap-2">
         <span className="text-[10.5px] font-semibold tracking-[0.2em] text-gold/80 uppercase">
-          판 결
+          {t.court.verdictLabel}
         </span>
         <span className="flex-1" />
         <Stamp />

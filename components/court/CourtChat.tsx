@@ -14,6 +14,7 @@ import {
   type Verdict,
   type Who,
 } from "@/lib/court";
+import { useCopy } from "@/lib/i18n";
 
 const MAN = "#2F63C4";
 const WOMAN = "#C0446E";
@@ -41,6 +42,7 @@ export function CourtChat({
   typing: Who | null;
   step: Step;
 }) {
+  const t = useCopy();
   const m = nameOf(file.man, "남자");
   const w = nameOf(file.woman, "여자");
 
@@ -48,7 +50,7 @@ export function CourtChat({
     <div className="mx-auto w-full max-w-[680px] px-4 sm:px-5 py-5 space-y-3.5">
       <p className="text-center font-mono text-[10.5px] text-t4">
         {caseNo(file)}
-        {file.rating === "adult" && <span className="text-blood/70"> · 19금 법정</span>}
+        {file.rating === "adult" && <span className="text-blood/70"> · {t.court.caseAdultSuffix}</span>}
       </p>
 
       {msgs.map((msg) => {
@@ -63,7 +65,7 @@ export function CourtChat({
 
         return (
           <Row key={msg.id} left={left}>
-            <div className="max-w-[86%] min-w-0">
+            <div className="max-w-[92%] sm:max-w-[86%] min-w-0">
               <p
                 className={`mb-1 text-[10.5px] text-t4 flex items-center gap-1.5 ${
                   left ? "" : "justify-end"
@@ -72,12 +74,12 @@ export function CourtChat({
                 {party ? (
                   <>
                     <span style={{ color: tone }}>{msg.who === "man" ? m : w}</span>
-                    <span>본인 진술</span>
+                    <span>{t.court.ownStatement}</span>
                   </>
                 ) : (
                   <>
                     <span style={{ color: tone }}>
-                      {msg.who === "a" ? `${m} 대리인` : `${w} 대리인`}
+                      {t.court.counselOf(msg.who === "a" ? m : w)}
                     </span>
                     <span>· {shortOf(msg.model ?? "")}</span>
                   </>
@@ -122,7 +124,7 @@ export function CourtChat({
 
       {step === "verdict" && !verdict && (
         <p className="thinking text-center text-[12.5px] font-medium py-2">
-          재판장이 판결문을 쓰는 중
+          {t.court.writingVerdict}
         </p>
       )}
     </div>
@@ -140,13 +142,14 @@ function Row({ left, children }: { left: boolean; children: React.ReactNode }) {
 /* ── 재판장 — 가운데, 가늘게 ─────────────────────────────── */
 
 function JudgeLine({ msg }: { msg: Msg }) {
+  const t = useCopy();
   return (
     <div className="rise flex flex-col items-center py-1.5">
       <div className="flex items-center gap-2 w-full max-w-[520px]">
         <span className="flex-1 h-px bg-gold/15" aria-hidden />
         <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-[0.14em] text-gold/70 uppercase shrink-0">
           <IconGavel size={11} />
-          재판장
+          {t.court.judge}
         </span>
         <span className="flex-1 h-px bg-gold/15" aria-hidden />
       </div>
@@ -163,16 +166,17 @@ function JudgeLine({ msg }: { msg: Msg }) {
 /* ── 배심 ─────────────────────────────────────────────────── */
 
 function JuryCard({ jurors, man }: { jurors: Juror[]; man: string }) {
+  const t = useCopy();
   if (!jurors.length) return null;
   const avg = Math.round(jurors.reduce((n, j) => n + j.m, 0) / jurors.length);
 
   return (
     <div className="rise glass rounded-[17px] px-4 py-3.5">
       <div className="flex items-baseline gap-2 mb-2.5">
-        <p className="text-[10.5px] font-semibold tracking-[0.14em] text-t3 uppercase">배심 평의</p>
+        <p className="text-[10.5px] font-semibold tracking-[0.14em] text-t3 uppercase">{t.court.juryHead}</p>
         <span className="flex-1" />
         <span className="font-mono text-[11px] text-t4">
-          평균 {man} {avg}%
+          {t.court.juryAvg(man, avg)}
         </span>
       </div>
       {/* 좁은 화면에서는 별명과 한 줄 평을 위아래로 나눈다 — 한 줄에 넣으면 평이 잘려 나간다 */}
@@ -218,16 +222,17 @@ function Typing({
   man: string;
   woman: string;
 }) {
+  const t = useCopy();
   if (who === "judge") {
     return (
       <p className="text-center text-[11.5px] text-gold/60 py-1">
-        재판장이 말하려 합니다<Dots />
+        {t.court.judgeSpeaking}<Dots />
       </p>
     );
   }
   const left = who === "a";
   const tone = left ? MAN : WOMAN;
-  const label = left ? `${man} 대리인` : `${woman} 대리인`;
+  const label = t.court.counselOf(left ? man : woman);
   const model = shortOf(left ? cast.a : cast.b);
 
   return (
@@ -245,7 +250,7 @@ function Typing({
 
 function Dots() {
   return (
-    <span className="inline-flex items-center gap-[3px] ml-1 align-middle" aria-label="입력 중">
+    <span className="inline-flex items-center gap-[3px] ml-1 align-middle" aria-hidden>
       {[0, 1, 2].map((i) => (
         <i
           key={i}

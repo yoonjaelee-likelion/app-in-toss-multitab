@@ -271,7 +271,7 @@ function Intake({
 }) {
   return (
     <div className="h-full overflow-auto scroll-y">
-      <div className="mx-auto w-full max-w-[680px] px-5 sm:px-6 pt-[8vh] pb-12">
+      <div className="mx-auto w-full max-w-[680px] px-4 sm:px-6 pt-6 sm:pt-[8vh] pb-12">
         <div className="rise text-center">
           <span className="inline-flex items-center h-[26px] px-3 rounded-full glass-2 text-[11.5px] font-medium text-t2">
             인비즈 · 인바디 + 비즈니스

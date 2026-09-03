@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CourtChat } from "@/components/court/CourtChat";
 import { CourtStart } from "@/components/court/CourtStart";
 import { newId } from "@/lib/chat";
+import { useCopy } from "@/lib/i18n";
 import {
   nameOf,
   type CaseFile,
@@ -24,6 +25,7 @@ export function Court({
   restore: StoredSession | null;
   onSession: (id: string) => void;
 }) {
+  const t = useCopy();
   const c = useCourt();
   const idRef = useRef<string | null>(restore?.id ?? null);
   const booted = useRef(false);
@@ -81,13 +83,13 @@ export function Court({
     persist({
       id,
       mode: "court",
-      title: f.man.claim ? `${m} 대 ${w}` : "재판 진행 중",
-      subtitle: `${f.rating === "adult" ? "19금 · " : ""}${
+      title: f.man.claim ? `${m} — ${w}` : t.modes.court.newLabel,
+      subtitle: `${f.rating === "adult" ? t.court.caseAdultSuffix + " · " : ""}${
         f.man.claim.slice(0, 22) || "진술 대기"
       }`,
       data: snap,
     });
-  }, [c.step, persist]);
+  }, [c.step, persist, t]);
 
   const begin = useCallback(
     (rating: Rating, cast: Cast) => {
@@ -99,10 +101,10 @@ export function Court({
   );
 
   const demo = useCallback(
-    (d: DemoCase, cast: Cast) => {
+    (d: DemoCase, rating: Rating, cast: Cast) => {
       idRef.current = newId();
       onSession(idRef.current);
-      const file: CaseFile = { rating: d.rating, man: d.man, woman: d.woman };
+      const file: CaseFile = { rating, man: d.man, woman: d.woman };
       void c.runDemo(file, cast);
     },
     [c, onSession],
@@ -151,7 +153,7 @@ export function Court({
         )}
         {c.mock && c.step === "done" && (
           <p className="mx-auto max-w-[680px] px-5 pb-4 text-[11px] text-t4 text-center">
-            API 키가 없어 모의 기록으로 재판했습니다
+            {t.court.mockNote}
           </p>
         )}
       </div>
@@ -172,7 +174,7 @@ export function Court({
                   onClick={c.stop}
                   className="nm-btn shrink-0 h-[36px] px-3.5 rounded-[11px] text-[12.5px] font-semibold text-t1"
                 >
-                  휴정
+                  {t.court.recess}
                 </button>
               ) : (
                 <>
@@ -184,7 +186,7 @@ export function Court({
                     }}
                     className="nm-btn shrink-0 h-[36px] px-3.5 rounded-[11px] text-[12.5px] font-semibold text-t1"
                   >
-                    새 재판
+                    {t.court.newTrial}
                   </button>
                   {c.verdict && (
                     <>
@@ -195,17 +197,17 @@ export function Court({
                           onSession(idRef.current);
                           c.appeal();
                         }}
-                        title="대리인을 맞바꿔서 변론부터 다시"
+                        title={t.court.appealHint}
                         className="nm-btn shrink-0 h-[36px] px-3.5 rounded-[11px] text-[12.5px] font-semibold text-t2 hover:text-t1"
                       >
-                        항소하기
+                        {t.court.appeal}
                       </button>
                       <button
                         type="button"
                         onClick={copy}
                         className="nm-btn shrink-0 h-[36px] px-3.5 rounded-[11px] text-[12.5px] font-semibold text-t2 hover:text-t1"
                       >
-                        {copied ? "복사했습니다" : "판결문 복사"}
+                        {copied ? t.court.copied : t.court.copyVerdict}
                       </button>
                     </>
                   )}
@@ -213,7 +215,7 @@ export function Court({
               )}
               <span className="flex-1" />
               <span className="hidden sm:block shrink-0 text-[11px] text-t4">
-                {c.busy ? "대리인들이 싸우는 중" : "판결에 불복하면 항소하십시오"}
+                {c.busy ? t.court.arguing : t.court.appealHintFoot}
               </span>
             </div>
           )}
@@ -238,6 +240,7 @@ function Statement({
   const [text, setText] = useState("");
   const ta = useRef<HTMLTextAreaElement>(null);
   const man = side === "man";
+  const t = useCopy();
   const tone = man ? "#2F63C4" : "#C0446E";
 
   const send = () => {
@@ -258,13 +261,13 @@ function Statement({
           className="inline-flex items-center h-[21px] px-2 rounded-[6px] text-[11px] font-bold pulse-gold"
           style={{ color: tone, background: `${tone}1f` }}
         >
-          {man ? "남자 차례" : "여자 차례"}
+          {man ? t.court.turnMan : t.court.turnWoman}
         </span>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="이름 (선택)"
-          aria-label="이름"
+          placeholder={t.court.namePlaceholder}
+          aria-label={t.court.namePlaceholder}
           className="w-[92px] bg-transparent outline-none text-[12px] text-t2 placeholder:text-t4"
         />
       </div>
@@ -288,16 +291,16 @@ function Statement({
         rows={2}
         placeholder={
           man
-            ? "무슨 일이 있었는지 적으세요. 본인한테 유리하게 적어도 됩니다"
-            : "반박하세요. 억울한 점, 사정, 다 적으세요"
+            ? t.court.statePlaceholderMan
+            : t.court.statePlaceholderWoman
         }
-        aria-label="진술"
+        aria-label={t.court.stateAria}
         className="w-full resize-none bg-transparent outline-none px-3.5 pt-2 pb-1.5 text-[14.5px] leading-[1.7] text-t1 placeholder:text-t4"
       />
 
       <div className="flex items-center gap-2 px-2.5 pb-2.5">
         <span className="flex-1 text-[11px] text-t4 pl-1 truncate">
-          이대로 대리인에게 넘어갑니다
+          {t.court.stateNote}
         </span>
         <button
           type="button"
@@ -305,7 +308,7 @@ function Statement({
           disabled={!text.trim() || disabled}
           className="btn-solid h-[36px] sm:h-[31px] px-3.5 sm:px-3 text-[12.5px] font-semibold flex items-center gap-1.5 disabled:cursor-not-allowed"
         >
-          진술
+          {t.court.stateSend}
           <span className="text-[10.5px] font-normal opacity-55">⏎</span>
         </button>
       </div>
